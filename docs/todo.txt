@@ -1,0 +1,5 @@
+pick correlation
+blend modes
+transparency
+movieclip -> spritesheet generation
+	
