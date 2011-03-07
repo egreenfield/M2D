@@ -1,5 +1,9 @@
-package M2D
+package M2D.particles
 {
+	import M2D.time.Clock;
+	import M2D.worlds.Instance;
+	import M2D.worlds.World;
+	
 	import com.adobe.utils.AGALMiniAssembler;
 	
 	import flash.display3D.Context3D;

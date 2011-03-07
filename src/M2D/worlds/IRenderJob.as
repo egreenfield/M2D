@@ -1,4 +1,4 @@
-package M2D
+package M2D.worlds
 {
 	
 	public interface IRenderJob

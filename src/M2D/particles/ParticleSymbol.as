@@ -1,5 +1,7 @@
-package M2D
+package M2D.particles
 {
+	import M2D.worlds.BatchTexture;
+	
 	import com.adobe.utils.AGALMiniAssembler;
 	
 	import flash.display3D.Context3D;

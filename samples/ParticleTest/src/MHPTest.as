@@ -1,17 +1,11 @@
 package
 {
-	import M2D.Actor;
-	import M2D.Asset;
-	import M2D.BatchTexture;
-	import M2D.BitmapWorld;
-	import M2D.CellAnimation;
-	import M2D.Clock;
-	import M2D.DOWorld;
-	import M2D.IClockListener;
-	import M2D.ParticleInstance;
-	import M2D.ParticleSymbol;
-	import M2D.World;
-	import M2D.WorldBase;
+	import M2D.particles.ParticleInstance;
+	import M2D.particles.ParticleSymbol;
+	import M2D.time.Clock;
+	import M2D.time.IClockListener;
+	import M2D.worlds.BatchTexture;
+	import M2D.worlds.World;
 	
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -32,7 +26,7 @@ package
 		public static const actorWidth:int = 40;
 		public static const actorHeight:int = 40;
 		
-		private var world:World;
+		private var world:M2D.worlds.World;
 		private var ps:Array = [];
 		
 		[Embed(source="assets/smiley.png")]
@@ -60,7 +54,7 @@ package
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
-			_clock = new Clock(60);
+			_clock = new M2D.time.Clock(60);
 			_clock.addListener(this);
 			
 			
@@ -69,8 +63,8 @@ package
 			clock.addListener(world);
 			world.initContext(stage,this,0,new Rectangle(0,0,viewWidth,viewHeight));
 			
-			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new air());
-			var particleSymbol:ParticleSymbol = world.particleLibrary.createSymbol();
+			var kTexture:M2D.worlds.BatchTexture = world.assetMgr.createTextureFromDisplayObject(new air());
+			var particleSymbol:M2D.particles.ParticleSymbol = world.particleLibrary.createSymbol();
 			
 			
 			particleSymbol.texture = kTexture;
@@ -84,7 +78,7 @@ package
 			var numGenerators:Number = 20;
 			trace("Max symbols per generator:",maxLiving);
 			trace("total #:",maxLiving*numGenerators);
-			var particle:ParticleInstance
+			var particle:M2D.particles.ParticleInstance;
 			
 			for(var i:int = 0;i<numGenerators;i++) {
 				

@@ -1,15 +1,13 @@
 package
 {
-	import M2D.Actor;
-	import M2D.Asset;
-	import M2D.BatchTexture;
-	import M2D.BitmapWorld;
-	import M2D.CellAnimation;
-	import M2D.Clock;
-	import M2D.DOWorld;
-	import M2D.IClockListener;
-	import M2D.World;
-	import M2D.WorldBase;
+	
+	import M2D.animation.CellAnimation;
+	import M2D.sprites.Actor;
+	import M2D.sprites.Asset;
+	import M2D.time.Clock;
+	import M2D.time.IClockListener;
+	import M2D.worlds.BatchTexture;
+	import M2D.worlds.World;
 	
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
@@ -27,8 +25,8 @@ package
 		private var actor:Actor;
 		public var tf:TextField;
 		public static const smoothWindow:int = 100;
-		public static const actorWidth:int = 40;
-		public static const actorHeight:int = 40;
+		public static const actorWidth:int = 20;
+		public static const actorHeight:int = 20;
 
 		private var world:World;
 
@@ -99,7 +97,6 @@ package
 				ca.centerY = cellHeight * (j +.5);
 				ca.radius = Math.random() * cellWidth * .3;
 				ca.speed = Math.random() * .4 + .8;
-				world.addActor(actor);
 				circles.push(ca);
 //				actor.active = (spinner == 1)? true:false;
 				}

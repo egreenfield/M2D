@@ -1,5 +1,9 @@
-package M2D
+package M2D.worlds
 {
+	import M2D.core.GContext;
+	import M2D.particles.ParticleLibrary;
+	import M2D.sprites.SymbolLibrary;
+	
 	import com.adobe.utils.AGALMiniAssembler;
 	
 	import flash.display.DisplayObject;

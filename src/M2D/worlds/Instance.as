@@ -1,4 +1,4 @@
-package M2D
+package M2D.worlds
 {
 	import flash.geom.Matrix3D;
 	import flash.geom.Rectangle;

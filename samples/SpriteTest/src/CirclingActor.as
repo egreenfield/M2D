@@ -1,13 +1,13 @@
 package
 {
-	import M2D.Actor;
+	import M2D.sprites.Actor;
 	
 	import flash.utils.getTimer;
 	
 	public class CirclingActor
 	{
 		public var actor:Actor;
-		public function CirclingActor(a:Actor)
+		public function CirclingActor(a:M2D.sprites.Actor)
 		{
 			actor = a;
 			super();

@@ -1,5 +1,9 @@
-package M2D
+package M2D.particles
 {
+	import M2D.core.IBlitOp;
+	import M2D.worlds.IRenderJob;
+	import M2D.worlds.World;
+	
 	import flash.display3D.Context3D;
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
@@ -25,24 +29,24 @@ package M2D
 		
 		private var InstanceMap:Dictionary = new Dictionary(true);
 		
-		private function getInstanceMap(symbol:ParticleSymbol):InstanceList
+		private function getInstanceMap(symbol:ParticleSymbol):ParticleInstanceList
 		{
-			var list:InstanceList = InstanceMap[symbol];
+			var list:ParticleInstanceList = InstanceMap[symbol];
 			if(list == null)
-				list = InstanceMap[symbol] = new InstanceList();
+				list = InstanceMap[symbol] = new ParticleInstanceList();
 			return list;
 		}
 		public function createSymbol():ParticleSymbol
 		{
 			var a:ParticleSymbol = new ParticleSymbol();
-			var list:InstanceList = getInstanceMap(a);
+			var list:ParticleInstanceList = getInstanceMap(a);
 			a.library = this;
 			return a;
 		}
 		
 		public function activate(instance:ParticleInstance,active:Boolean):void
 		{
-			var list:InstanceList = getInstanceMap(instance.symbol);
+			var list:ParticleInstanceList = getInstanceMap(instance.symbol);
 			if(active)
 			{
 				list.blitOps.push(instance);
@@ -62,12 +66,12 @@ package M2D
 		{
 			for(var aSymbol:* in InstanceMap)
 			{
-				var list:InstanceList = InstanceMap[aSymbol];
+				var list:ParticleInstanceList = InstanceMap[aSymbol];
 				renderInstances(aSymbol,list);
 			}
 		}
 		
-		private function renderInstances(sym:ParticleSymbol,list:InstanceList):void
+		private function renderInstances(sym:ParticleSymbol,list:ParticleInstanceList):void
 		{
 			var context3D:Context3D = world.context3D;
 			var blitOps:Vector.<ParticleInstance> = list.blitOps;
@@ -95,9 +99,9 @@ package M2D
 			}
 			else
 			{
-				for(var i:int = 0;i<len;i++)
+				for(i = 0;i<len;i++)
 				{
-					var pi:ParticleInstance = blitOps[i] as ParticleInstance;
+					pi = blitOps[i] as ParticleInstance;
 					pi.render();
 				}				
 			}
@@ -113,10 +117,9 @@ package M2D
 		}
 	}
 }
-import M2D.IBlitOp;
-import M2D.ParticleInstance;
+import M2D.particles.ParticleInstance;
 
-class InstanceList
+class ParticleInstanceList
 {
 	public var activeInstancesDirty:Boolean = true;
 	public var blitOps:Vector.<ParticleInstance> = new Vector.<ParticleInstance>();

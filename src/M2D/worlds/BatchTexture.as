@@ -1,5 +1,6 @@
-package M2D
+package M2D.worlds
 {
+	
 	import com.adobe.utils.AGALMiniAssembler;
 	
 	import flash.display.Bitmap;
@@ -31,8 +32,8 @@ package M2D
 		public var texture:Texture;		
 		public var width:Number;
 		public var height:Number;	
-		internal var defaultWidth:Number;
-		internal var defaultHeight:Number;
+		public var defaultWidth:Number;
+		public var defaultHeight:Number;
 		
 		public var data:BitmapData;
 		public var assetMgr:AssetMgr;
@@ -78,7 +79,7 @@ package M2D
 		
 		
 
-		internal function prepare():void
+		public function prepare():void
 		{
 			var context3D:Context3D = assetMgr.world.context3D;
 			if(texture == null)

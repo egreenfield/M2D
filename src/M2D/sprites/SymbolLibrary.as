@@ -1,5 +1,10 @@
-package M2D
+package M2D.sprites
 {
+	import M2D.core.IBlitOp;
+	import M2D.worlds.BatchTexture;
+	import M2D.worlds.IRenderJob;
+	import M2D.worlds.World;
+	
 	import flash.display3D.Context3D;
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
@@ -117,7 +122,7 @@ package M2D
 		}
 	}
 }
-import M2D.IBlitOp;
+import M2D.core.IBlitOp;
 
 class ActorList
 {

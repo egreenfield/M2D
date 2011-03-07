@@ -1,5 +1,6 @@
-package M2D
+package M2D.sprites
 {
+	import M2D.worlds.BatchTexture;
 
 	public class Asset
 	{

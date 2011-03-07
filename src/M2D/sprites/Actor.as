@@ -1,5 +1,7 @@
-package M2D
+package M2D.sprites
 {
+	import M2D.core.IBlitOp;
+	
 	import flash.geom.Matrix;
 	import flash.geom.Matrix3D;
 	import flash.geom.Rectangle;

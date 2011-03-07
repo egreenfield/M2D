@@ -1,5 +1,6 @@
-package M2D
+package M2D.worlds
 {
+	
 	import flash.display.DisplayObject;
 
 	public class AssetMgr

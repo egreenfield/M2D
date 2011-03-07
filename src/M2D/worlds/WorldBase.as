@@ -1,5 +1,8 @@
-package M2D
+package M2D.worlds
 {
+	import M2D.time.Clock;
+	import M2D.time.IClockListener;
+	
 	import flash.display.DisplayObjectContainer;
 	import flash.display.Stage;
 	import flash.geom.Rectangle;
@@ -42,16 +45,6 @@ package M2D
 		public function render():void
 		{
 			
-		}
-		
-		public function addActor(actor:Actor):Actor
-		{
-			return actor;
-		}
-		
-		public function removeActor(actor:Actor):Actor
-		{
-			return actor;
 		}
 		
 		public function addJob(job:IRenderJob):void

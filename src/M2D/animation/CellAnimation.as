@@ -1,5 +1,9 @@
-package M2D
+package M2D.animation
 {
+	import M2D.sprites.Actor;
+	import M2D.time.Clock;
+	import M2D.time.IClockListener;
+
 	public class CellAnimation implements IClockListener
 	{
 		private var _clock:Clock;

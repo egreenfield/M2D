@@ -19,12 +19,12 @@
 		<link>
 			<name>[source path] src</name>
 			<type>2</type>
-			<location>/Users/egreenfi/dev/Flash/projects/MH/src</location>
+			<location>/Users/egreenfi/dev/Flash/projects/mh/src</location>
 		</link>
 		<link>
 			<name>bin-debug</name>
 			<type>2</type>
-			<location>/Users/egreenfi/dev/Flash/projects/MH/bin</location>
+			<location>/Users/egreenfi/dev/Flash/projects/mh/bin</location>
 		</link>
 	</linkedResources>
 </projectDescription>
