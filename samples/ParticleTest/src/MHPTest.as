@@ -129,6 +129,7 @@
 			trace("Max symbols per generator:",maxLiving);
 			trace("total #:",maxLiving*numGenerators);
 			var particle:ParticleInstance;
+			var ac:Actor;
 			
 			var z:Zone2D = new RectangleZone(-200,-200,200,200);
 			for(var i:int = 0;i<numGenerators;i++) {
@@ -139,17 +140,18 @@
 				particle.y = Math.random() * 400+ 500 - 200;
 				particle.depth = -10 ;
 
-				var ac:Actor = asset.createActor();
+				/*
+				ac = asset.createActor();
 				ac.depth = -20;
 				ac.scaleX = ac.scaleY = .5;
 				ac.regX = ac.regY = 0;
 				ac.x = particle.x;
 				ac.y = particle.y;
+				*/
 				particle.clock = _clock;
 //				particle.rotation = Math.random() * 360 ;
 				particle.start();
 				ps.push({p:particle,ac:ac});
-				
 			}
 
 			/*
@@ -265,8 +267,8 @@
 				//p.y = p.y + (mouseY - p.y)*.1;
 				p.p.x = mouseX;
 				p.p.y= mouseY;
-				p.ac.x = mouseX;
-				p.ac.y= mouseY;
+//				p.ac.x = mouseX;
+//				p.ac.y= mouseY;
 			}
 
 		}

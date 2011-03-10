@@ -28,4 +28,5 @@ Sortof-ish?  It's better than the most brute force no-thought way you would use 
 Not too complete.  It's complete enough to write tests, but at this point, not ready for prime time.  There's no way to dispose of sprites and symbols, for example.  There's no defense against loss of the GPU context.  Again, if there's interest, that stuff will come.  
 
 ## Can I help?
-Sure!  Send an email, send a patch, roll up your sleeves and get coding.
+Sure!  Send an email, send a patch, roll up your sleeves and get coding.  Email me at m2d@quietlyscheming.com
+
