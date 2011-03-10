@@ -1,9 +1,37 @@
-package M2D.sprites
+/*
+* M2D 
+* .....................
+* 
+* Author: Ely Greenfield
+* Copyright (c) Adobe Systems 2011
+* https://github.com/egreenfield/M2D
+* 
+* 
+* Licence Agreement
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+* 
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+*/package M2D.sprites
 {
 	import M2D.core.IBlitOp;
 	import M2D.worlds.BatchTexture;
 	import M2D.worlds.IRenderJob;
-	import M2D.worlds.World;
+	import M2D.worlds.WorldBase;
 	
 	import flash.display3D.Context3D;
 	import flash.geom.Rectangle;
@@ -11,12 +39,12 @@ package M2D.sprites
 
 	public class SymbolLibrary implements IRenderJob
 	{
-		private var _world:World;
-		public function set world(w:World):void
+		private var _world:WorldBase;
+		public function set world(w:WorldBase):void
 		{
 			this._world = w;
 		}
-		public function get world():World
+		public function get world():WorldBase
 		{
 			return _world;
 		}
@@ -29,7 +57,7 @@ package M2D.sprites
 		private var blitOps:Vector.<IBlitOp> = new Vector.<IBlitOp>();
 		
 		private var actorMap:Dictionary = new Dictionary(true);
-			
+		
 		private function getActorMap(tx:BatchTexture):ActorList
 		{
 			var list:ActorList = actorMap[tx];

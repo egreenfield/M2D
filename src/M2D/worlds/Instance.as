@@ -1,4 +1,32 @@
-package M2D.worlds
+/*
+* M2D 
+* .....................
+* 
+* Author: Ely Greenfield
+* Copyright (c) Adobe Systems 2011
+* https://github.com/egreenfield/M2D
+* 
+* 
+* Licence Agreement
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+* 
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+*/package M2D.worlds
 {
 	import flash.geom.Matrix3D;
 	import flash.geom.Rectangle;
@@ -19,10 +47,11 @@ package M2D.worlds
 		public var regX:Number;
 		public var regY:Number;
 		protected var _active:Boolean = false;
-		private var m:Matrix3D = new Matrix3D();
+		protected var blitXForm:Matrix3D = new Matrix3D();
+		
 		private var sourceRC:Rectangle = new Rectangle();
 		
-		private var mDirty:Boolean = true;
+		protected var blitXFormDirty:Boolean = true;
 
 		
 		public function get x():Number { return _x;}
@@ -31,7 +60,7 @@ package M2D.worlds
 		public function set rotation(value:Number):void
 		{
 			_rotation = value;
-			mDirty = true;
+			blitXFormDirty = true;
 		}
 		public function get rotation():Number { return _rotation; }
 
@@ -51,9 +80,9 @@ package M2D.worlds
 		
 		public function move(x:Number,y:Number):void
 		{
-			if(mDirty == false)	
+			if(blitXFormDirty == false)	
 			{
-				m.appendTranslation(x- _x,y - _y,0);
+				blitXForm.appendTranslation(x- _x,y - _y,0);
 			}
 			_x = x;
 			_y = y;
@@ -61,11 +90,13 @@ package M2D.worlds
 		public function set x(value:Number):void
 		{
 			_x = value;
+			blitXFormDirty = true;
 		}
 		
 		public function set y(value:Number):void
 		{
 			_y = value;			
+			blitXFormDirty = true;
 		}
 
 		public function get width():Number
@@ -78,17 +109,17 @@ package M2D.worlds
 		}
 		public function getBlitXForm():Matrix3D
 		{
-			if(mDirty)	
+			if(blitXFormDirty)	
 			{
-				m.identity();
-				m.appendTranslation((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY,0);
-				m.appendScale(scaleX,scaleY,1);
+				blitXForm.identity();
+				blitXForm.appendTranslation((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY,0);
+				blitXForm.appendScale(scaleX,scaleY,1);
 				if(rotation != 0)
-					m.appendRotation(_rotation,Vector3D.Z_AXIS);
-				m.appendTranslation(_x,_y,-depth/30000);
-				mDirty = false;
+					blitXForm.appendRotation(_rotation,Vector3D.Z_AXIS);
+				blitXForm.appendTranslation(_x,_y,-depth/30000);
+				blitXFormDirty = false;
 			}
-			return m;
-		}
+			return blitXForm;
+		}		
 	}
 }

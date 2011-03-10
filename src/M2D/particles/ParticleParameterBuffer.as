@@ -26,32 +26,43 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package
+*/package M2D.particles
 {
-	public class Smoother
+	import flash.display3D.Context3D;
+	import flash.display3D.VertexBuffer3D;
+
+	public class ParticleParameterBuffer
 	{
-		public var values:Vector.<Number>;
-		public var length:int;
-		public var average:Number = 0;
-		public var sum:Number = 0;
-		public var precision:Number = 2;
+		public var firstIndexInParams:Number = 0;
+		public var numParticles:Number;
 		
-		public function Smoother(len:int)
+		public function ParticleParameterBuffer(numParticles:int)
 		{
-			values = new Vector.<Number>();
-			length = len;
+			this.numParticles = numParticles;
+			paramVector = new Vector.<Number>(numParticles * ParticleSymbol.NUM_PARAM_FLOATS_PER_PARTICLE);				
 		}
-		public function sample(value:Number):void
+		
+		public var paramVector:Vector.<Number>;		
+		public var paramBuffer:VertexBuffer3D;	
+		private var _buffersDirty:Boolean = true;
+
+		public function initBuffers(ctx:Context3D):void
 		{
-			if(isNaN(value) || value == Infinity)
+			if(_buffersDirty == false)
 				return;
+			if(paramBuffer != null)
+			{
+				paramBuffer.dispose();
+				paramBuffer = null;
+			}
+			paramBuffer = ctx.createVertexBuffer( paramVector.length /ParticleSymbol.NUM_PARAMS_PER_PARTICLE, ParticleSymbol.NUM_PARAMS_PER_PARTICLE ); // 3 vertices, 5 floats per vertex
+			paramBuffer.uploadFromVector(paramVector,0,paramVector.length/ParticleSymbol.NUM_PARAMS_PER_PARTICLE);
 			
-			sum += value;
-			values.push(value);
-			if(values.length > length)
-				sum -= values.shift();
-			var precisionFactor:Number = Math.pow(10,precision);
-			average = Math.floor(precisionFactor * sum/values.length)/precisionFactor;			
+			_buffersDirty = false;
+		}		
+		public function commit():void
+		{
+			paramBuffer.uploadFromVector(paramVector,0,paramVector.length/ParticleSymbol.NUM_PARAMS_PER_PARTICLE);			
 		}
 	}
 }

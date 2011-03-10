@@ -26,32 +26,16 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package
+*/package M2D.particles
 {
-	public class Smoother
+	public class ParticleConfiguration
 	{
-		public var values:Vector.<Number>;
-		public var length:int;
-		public var average:Number = 0;
-		public var sum:Number = 0;
-		public var precision:Number = 2;
-		
-		public function Smoother(len:int)
+		public function ParticleConfiguration()
 		{
-			values = new Vector.<Number>();
-			length = len;
 		}
-		public function sample(value:Number):void
-		{
-			if(isNaN(value) || value == Infinity)
-				return;
-			
-			sum += value;
-			values.push(value);
-			if(values.length > length)
-				sum -= values.shift();
-			var precisionFactor:Number = Math.pow(10,precision);
-			average = Math.floor(precisionFactor * sum/values.length)/precisionFactor;			
-		}
+		public var x:Number = 0;
+		public var y:Number = 0;
+		public var rotation:Number = 0;
+		public var velocity:Number = 0;			
 	}
 }
