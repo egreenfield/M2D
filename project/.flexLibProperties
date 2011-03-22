@@ -7,6 +7,9 @@
     <classEntry path="zones.RectangleZone"/>
     <classEntry path="M2D.particles.StaticParticleSource"/>
     <classEntry path="M2D.particles.ParticleSource"/>
+    <classEntry path="M2D.core.RenderTask"/>
+    <classEntry path="M2D.worlds.RenderMgr"/>
+    <classEntry path="M2D.core.RC"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

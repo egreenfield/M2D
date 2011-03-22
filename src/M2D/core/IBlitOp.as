@@ -34,6 +34,6 @@
 	public interface IBlitOp
 	{
 		function getBlitXForm():Matrix3D;
-		function getBlitSourceRC():Rectangle;		
+		function getBlitSourceRC():Vector.<Number>;		
 	}
 }

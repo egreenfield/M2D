@@ -104,8 +104,8 @@
 			var cellHeight:Number = viewHeight/actorHeight;
 			
 			var anim:CellAnimation;
-			for(var j:int = 0;j<actorHeight;j++) {
-			for(var i:int = 0;i<actorWidth;i++) {
+//			for(var j:int = 0;j<actorHeight;j++) {
+			for(var i:int = 0;i<7000;i++) {
 				actor = assets[spinner].createActor();
 				anim= (animations[spinner] == null)?null:animations[spinner].clone();
 				if(anim != null)
@@ -121,13 +121,12 @@
 				actor.scaleY = Math.max(.1,cellHeight/actor.height * s);
 				actor.depth = Math.random() * -1;
 				var ca:CirclingActor = new CirclingActor(actor);
-				ca.centerX = cellWidth * (i + .5);
-				ca.centerY = cellHeight * (j +.5);
+				ca.centerX = Math.random() * viewWidth;//cellWidth * (i + .5);
+				ca.centerY = Math.random() * viewHeight;//cellHeight * (j +.5);
 				ca.radius = Math.random() * cellWidth * .3;
 				ca.speed = Math.random() * .4 + .8;
 				circles.push(ca);
-//				actor.active = (spinner == 1)? true:false;
-				}
+//				}
 			}
 			
 		
@@ -163,14 +162,19 @@
 			_clock = value;
 		}
 		
+		public var doneOnce:Boolean = false;
 		public function tick():void
 		{
 //			actor.x = 427+ Math.cos(getTimer()/1000*Math.PI*2)*50;
 	//		actor.y = 240 + + Math.sin(getTimer()/1000*Math.PI*2)*50
-			for(var i:int = 0;i<circles.length;i++) {
+
+			if(doneOnce == false)
+			{
+				for(var i:int = 0;i<circles.length;i++) {
 				circles[i].update();
+				}
+				doneOnce = true;
 			}
-			
 			var t:Number = clock.currentTime;
 			var delta:Number = t - previousTime;
 			fps.sample((1/delta)*1000);

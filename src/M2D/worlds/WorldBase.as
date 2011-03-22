@@ -102,7 +102,7 @@
 		
 		private function initContext3D():void
 		{
-			context3D.enableErrorChecking = true;
+			context3D.enableErrorChecking = false;
 			context3D.configureBackBuffer( bounds.width, bounds.height, antiAliasDepth, true); // fixed size
 			context3D.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA,Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
 			context3D.setDepthTest(true,Context3DCompareMode.LESS_EQUAL);

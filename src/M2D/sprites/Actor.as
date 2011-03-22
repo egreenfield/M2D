@@ -29,6 +29,7 @@
 */package M2D.sprites
 {
 	import M2D.core.IBlitOp;
+	import M2D.core.RC;
 	
 	import flash.geom.Matrix;
 	import flash.geom.Matrix3D;
@@ -42,21 +43,37 @@
 		public var scaleX:Number = 1;
 		public var scaleY:Number = 1;
 		public var depth:Number = 0;
-		public function get width():Number { return asset.width; }
-		public function get height():Number {return asset.height;}
+		public function get width():Number { return _asset.width; }
+		public function get height():Number {return _asset.height;}
 		public var _rotation:Number = 0;
-
+		public var sourceRCDirty:Boolean = true;
+		
 		public var regX:Number;
 		public var regY:Number;
 		
 		private var _active:Boolean = false;
 		
 		
-		public var cell:int = 0;
+		private var _cell:int = 0;
 		
 		public function get x():Number { return _x;}
 		public function get y():Number { return _y;}
 		
+		
+		public var t:Vector.<Number> = Vector.<Number>([0,0,0,0]);
+		public var rs:Vector.<Number> = Vector.<Number>([0,1,1,0]);
+		
+		public function set cell(value:int):void
+		{
+			if(value != _cell)
+				sourceRCDirty = true;
+			_cell = value;
+			updateSourceRC();
+		}
+		public function get cell():int
+		{
+			return _cell;
+		}
 		private var _sourceBounds:Rectangle = new Rectangle();
 		
 		
@@ -68,6 +85,8 @@
 			}
 			_x = x;
 			_y = y;
+			t[2] = x;
+			t[3] = y;
 		}
 		public function set x(value:Number):void
 		{
@@ -76,6 +95,7 @@
 				m.appendTranslation(value - _x,0,0);
 			}
 			_x = value;
+			t[2] = value;
 		}
 		
 		public function set y(value:Number):void
@@ -85,6 +105,7 @@
 				m.appendTranslation(0,value - _y,0);
 			}
 			_y = value;			
+			t[3] = value;
 		}
 		public function set active(value:Boolean):void
 		{
@@ -92,7 +113,7 @@
 				return;
 			
 			_active = value;
-			asset.library.activate(this,value);
+			_asset.library.activate(this,value);
 		}
 		public function get active():Boolean
 		{
@@ -117,8 +138,8 @@
 		{
 			if(mDirty)	
 			{
-				var width:Number = asset.width;
-				var height:Number = asset.height;
+				var width:Number = _asset.width;
+				var height:Number = _asset.height;
 				m.identity();
 				m.appendScale(width,height,1);
 				m.appendTranslation((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY,0);
@@ -131,20 +152,28 @@
 			return m;
 		}
 
-		public function getBlitSourceRC():Rectangle
+		public function getBlitSourceRC():Vector.<Number>
 		{
-			var width:Number = asset.width/asset.texture.width/asset.cellColumnCount;
-			var height:Number = asset.height/asset.texture.height/asset.cellRowCount;
-			sourceRC.left = width * (cell % asset.cellColumnCount);
-			sourceRC.top = height * Math.floor(cell / asset.cellColumnCount);
-			sourceRC.width = width;
-			sourceRC.height = height;
+			if(sourceRCDirty)
+			{
+				updateSourceRC();
+			}
 			
 			return sourceRC;
 		}
+		private function updateSourceRC():void
+		{
+			var width:Number = _asset.width/_asset.texture.width/_asset.cellColumnCount;
+			var height:Number = _asset.height/_asset.texture.height/_asset.cellRowCount;
+			sourceRC[0] = width;
+			sourceRC[1] = height;
+			sourceRC[2] = width * (_cell % _asset.cellColumnCount);
+			sourceRC[3]  = height * Math.floor(_cell / _asset.cellColumnCount);
+			sourceRCDirty = false;			
+		}
 		
 		private var m:Matrix3D = new Matrix3D();
-		private var sourceRC:Rectangle = new Rectangle();
+		public var sourceRC:Vector.<Number> = new Vector.<Number>(4);
 		
 		private var mDirty:Boolean = true;
 		public function get2DMatrix():Matrix
@@ -159,6 +188,21 @@
 			return m;			
 		}
 		
-		public var asset:Asset;
+		private var _asset:Asset;
+		public function set asset(v:Asset):void
+		{
+			_asset = v;
+			rs[0] = 0;
+			rs[1] = _asset.width;
+			rs[2] = _asset.height;
+			t[0] = -_asset.width/2;
+			t[1] = -_asset.height/2;
+			
+			updateSourceRC();
+		}
+		public function get asset():Asset
+		{
+			return _asset;
+		}
 	}
 }

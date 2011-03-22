@@ -114,7 +114,7 @@
 		private function renderActors(tx:BatchTexture,list:ActorList):void
 		{
 			var context3D:Context3D = world.context3D;
-			var blitOps:Vector.<IBlitOp> = list.blitOps;
+			var blitOps:Vector.<Actor> = list.blitOps;
 			
 			tx.prepare();
 			
@@ -151,9 +151,10 @@
 	}
 }
 import M2D.core.IBlitOp;
+import M2D.sprites.Actor;
 
 class ActorList
 {
 	public var activeActorsDirty:Boolean = true;
-	public var blitOps:Vector.<IBlitOp> = new Vector.<IBlitOp>();
+	public var blitOps:Vector.<Actor> = new Vector.<Actor>();
 }

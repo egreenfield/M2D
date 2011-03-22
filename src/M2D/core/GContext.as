@@ -28,6 +28,8 @@
 * THE SOFTWARE.
 */package M2D.core
 {
+	import M2D.sprites.Actor;
+	
 	import com.adobe.utils.AGALMiniAssembler;
 	
 	import flash.display3D.Context3D;
@@ -63,12 +65,14 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 // constants
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
-		private static const MAX_BATCH_SIZE:int = Math.floor(126/5);
+		
+		private static const NUM_SHARED_VERTEX_CONTSTANTS:int = 5;
+		private static const NUM_CONSTANTS_PER_SPRITE:Number = 3;
+		private static const MAX_BATCH_SIZE:int = Math.floor((128-NUM_SHARED_VERTEX_CONTSTANTS)/NUM_CONSTANTS_PER_SPRITE);
 		private static const VERTEX_COUNT:Number = 4*MAX_BATCH_SIZE;
 		private static const INDEX_COUNT:Number = 6*MAX_BATCH_SIZE;
-		private static const VERTEX_LENGTH:Number = 6;
-		private static const NUM_CONSTANTS_PER_SPRITE:Number = 5;
-		private static const NUM_CONSTANTS_USED_FOR_MATRIX:Number = 4;
+		private static const VERTEX_LENGTH:Number = 7;
+		private static const NUM_CONSTANTS_USED_FOR_MATRIX:Number = 1;
 		
 		private static const CONSTANTS:Vector.<Number> = Vector.<Number> ( [1,2,3,4] ); 
 
@@ -86,10 +90,15 @@
 		
 		
 		private static const DEFAULT_VERTEX_SHADER:String =
-			"m44 op, va0, vc[va2.x]		\n" +	// 4x4 matrix transform from stream 0 to output clipspace
-			"mul vt2, va1, vc[va2.y]		\n" +	// scale tex coords by texture transform
-			"add vt2.xy, vt2.xy, vc[va2.y].zw		\n" +	// scale tex coords by texture transform
-			"mov v0, vt2		\n" +	// copy xformed from stream 1 to fragment program
+			"mov vt1, va0	\n" +
+			"mul vt1.xy,vt1.xy, vc[va2.y].yz	\n" + // scale to width/height
+			"add vt1.xy, vt1.xy, vc[va2.x].xy	\n" + // add in regX,regY
+													  // really should scale by sx,sy here
+			"add vt1.xy, vt1.xy, vc[va2.x].zw	\n" + // add in translation
+			"m44 op, vt1, vc1		\n" +	// 4x4 matrix transform from world space to output clipspace
+			"mul vt2, va1, vc[va2.z]		\n" +	// scale tex coords by texture transform
+			"add vt2.xy, vt2.xy, vc[va2.z].zw		\n" +	// offset tex coords by texture transform
+			"mov v0, vt2		\n" +	// copy xformed tex coords to fragment program
 			"";
 		private static const ALPHA_TEXTURE_SHADER:String =
 			"mov ft0, v0\n" +
@@ -118,12 +127,15 @@
 				vertexVector = new Vector.<Number>();
 				for(var i:int = 0;i<MAX_BATCH_SIZE;i++) {
 					var vertexOffset:Number = i*4;
-					var constantOffset:Number = i*5;
+					var constantOffset:Number = i*NUM_CONSTANTS_PER_SPRITE;
+					var tOffset:Number = constantOffset+NUM_SHARED_VERTEX_CONTSTANTS;
+					var rsOffset:Number = constantOffset+NUM_SHARED_VERTEX_CONTSTANTS+1;
+					var uvOffset:Number = constantOffset+NUM_SHARED_VERTEX_CONTSTANTS+2;
 					vertexVector.push(
-						0,0,0,0,	constantOffset+1,constantOffset+5,
-						1,0,1,0,	constantOffset+1,constantOffset+5,
-						0,1,0,1,	constantOffset+1,constantOffset+5,
-						1,1,1,1,	constantOffset+1,constantOffset+5
+						0,0,0,0,	tOffset,rsOffset,uvOffset,
+						1,0,1,0,	tOffset,rsOffset,uvOffset,
+						0,1,0,1,	tOffset,rsOffset,uvOffset,
+						1,1,1,1,	tOffset,rsOffset,uvOffset
 					);
 					indexVector.push(
 						vertexOffset, vertexOffset+1, vertexOffset+2,vertexOffset+1,vertexOffset+2,vertexOffset+3
@@ -194,7 +206,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 				
-		public function blit2D(source:Texture,sources:Vector.<IBlitOp>):void
+		public function blit2D(source:Texture,sources:Vector.<Actor>):void
 		{			
 			var count:int = sources.length;
 			var base:int = 0;
@@ -204,10 +216,11 @@
 			_context.setProgram( _shaderProgram );
 			_context.setVertexBufferAt( 0, _vertexBuffer, 0, Context3DVertexBufferFormat.FLOAT_2 );
 			_context.setVertexBufferAt( 1, _vertexBuffer, 2, Context3DVertexBufferFormat.FLOAT_2 );
-			_context.setVertexBufferAt( 2, _vertexBuffer, 4, Context3DVertexBufferFormat.FLOAT_2 );			
+			_context.setVertexBufferAt( 2, _vertexBuffer, 4, Context3DVertexBufferFormat.FLOAT_3 );			
 			_context.setVertexBufferAt( 3, null);			
 			_context.setVertexBufferAt( 4, null);			
 			_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, 0, CONSTANTS);
+			_context.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, 1, cameraMatrix, true );				
 			_context.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT,0,Vector.<Number>([-.01,-.01,-.01,-.01]));
 			
 			
@@ -228,7 +241,7 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 		
-		private function blit2DBatch(sources:Vector.<IBlitOp>,base:int,count:int):Number
+		private function blit2DBatch(sources:Vector.<Actor>,base:int,count:int):Number
 		{
 			
 			// assume our vertex buffer has enough space for all our vertices;
@@ -236,21 +249,14 @@
 			var activeActorCount:int = 0;
 			for(var i:int = 0;i<count;i++)
 			{
-				var source:IBlitOp = sources[base+i];
-				var sourceRect:Rectangle = source.getBlitSourceRC();
-				var xForm:Matrix3D = source.getBlitXForm();
+				var source:Actor = sources[base+i];
+				var sourceRect:Vector.<Number> = source.sourceRC;
+//				var xForm:Matrix3D = source.getBlitXForm();
+
+				_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, NUM_SHARED_VERTEX_CONTSTANTS+activeActorCount*NUM_CONSTANTS_PER_SPRITE, source.t);				
+				_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, NUM_SHARED_VERTEX_CONTSTANTS+activeActorCount*NUM_CONSTANTS_PER_SPRITE+1, source.rs);				
 				
-				xForm.copyToMatrix3D(tmpMatrix);				
-				tmpMatrix.append(cameraMatrix);
-				
-				_context.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, 1+activeActorCount*NUM_CONSTANTS_PER_SPRITE, tmpMatrix, true );				
-				
-				tmpVector[0] = sourceRect.width;
-				tmpVector[1] = sourceRect.height;
-				tmpVector[2] = sourceRect.left;
-				tmpVector[3] = sourceRect.top;
-				
-				_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, 1+activeActorCount*NUM_CONSTANTS_PER_SPRITE+NUM_CONSTANTS_USED_FOR_MATRIX, tmpVector);				
+				_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, NUM_SHARED_VERTEX_CONTSTANTS+activeActorCount*NUM_CONSTANTS_PER_SPRITE+2, sourceRect);				
 				activeActorCount++;
 			}
 			
