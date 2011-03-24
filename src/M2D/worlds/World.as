@@ -30,14 +30,25 @@
 {
 	import M2D.particles.ParticleLibrary;
 	import M2D.sprites.SymbolLibrary;
+	
+	import flash.display.DisplayObjectContainer;
+	import flash.display.Stage;
+	import flash.geom.Rectangle;
 
 	public class World extends WorldBase
 	{
 		public function World()
 		{
 			assetMgr = new AssetMgr(this);
+			renderMgr = new RenderMgr(this);
 			addJob(library);
 			addJob(particleLibrary);
+		}
+		
+		override public function initContext(stage:Stage,container:DisplayObjectContainer,slot:int,bounds:Rectangle):void
+		{
+			renderMgr.init(container);
+			super.initContext(stage,container,slot,bounds);
 		}
 		// ======================================================================
 		//	Constants
@@ -45,6 +56,7 @@
 		
 		public var assetMgr:AssetMgr;
 		public var particleLibrary:ParticleLibrary = new ParticleLibrary();
-		public var library:SymbolLibrary = new SymbolLibrary();	
+		public var library:SymbolLibrary = new SymbolLibrary();
+		public var renderMgr:RenderMgr;
 	}
 }
