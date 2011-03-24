@@ -230,7 +230,6 @@
 				var batchSize:int = Math.min(count - base,MAX_BATCH_SIZE);
 				blit2DBatch(sources,base,batchSize);
 				base += batchSize;
-//				_numDrawTriangleCalls++;					
 			}			
 		}
 		
@@ -243,20 +242,19 @@
 			// assume our vertex buffer has enough space for all our vertices;
 			var constantBase:int = 1;
 			var activeActorCount:int = 0;
-			for(var i:int = 0;i<count;i++)
+			var end:Number = base+count;
+			var ctx:Context3D = _context;
+			var constantOffset:Number = NUM_SHARED_VERTEX_CONTSTANTS;
+			for(var i:int = base;i<end;i++)
 			{
-				var source:Actor = sources[base+i];
-				var sourceRect:Vector.<Number> = source.sourceRC;
-				var xForm:Matrix3D = source.getBlitXForm();
-
-				_context.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, NUM_SHARED_VERTEX_CONTSTANTS+activeActorCount*NUM_CONSTANTS_PER_SPRITE, xForm,true);								
-				_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, NUM_SHARED_VERTEX_CONTSTANTS+activeActorCount*NUM_CONSTANTS_PER_SPRITE+NUM_CONSTANTS_USED_FOR_MATRIX, sourceRect);				
-				activeActorCount++;
+				var xForm:Vector.<Number>= sources[i].getBlitXForm();
+				ctx.setProgramConstantsFromVector( Context3DProgramType.VERTEX, constantOffset, xForm);								
+				constantOffset += NUM_CONSTANTS_PER_SPRITE;
 			}
 			
-			var t:Number = getTimer();
-			_context.drawTriangles( _indexBuffer,0,2*activeActorCount);
-			return getTimer() - t;
+//			var t:Number = getTimer();
+			_context.drawTriangles( _indexBuffer,0,2*count);
+			return 0;//getTimer() - t;
 		}		
 	}
 }

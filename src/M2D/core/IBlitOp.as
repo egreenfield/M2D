@@ -33,7 +33,7 @@
 
 	public interface IBlitOp
 	{
-		function getBlitXForm():Matrix3D;
+		function getBlitXForm():Vector.<Number>;
 		function getBlitSourceRC():Vector.<Number>;		
 	}
 }

@@ -38,30 +38,29 @@
 
 	public class Actor implements IBlitOp
 	{
-		private var _x:Number = 0;
-		private var _y:Number = 0;
+		public var x:Number = 0;
+		public var y:Number = 0;
 		public var scaleX:Number = 1;
 		public var scaleY:Number = 1;
 		public var depth:Number = 0;
 		public function get width():Number { return _asset.width; }
 		public function get height():Number {return _asset.height;}
-		public var _rotation:Number = 0;
+		public var rotation:Number = 0;
 		public var sourceRCDirty:Boolean = true;
 		
 		public var regX:Number;
 		public var regY:Number;
 		
+		private var _prevX:Number;
+		private var _prevY:Number;
+		private var _prevRotation:Number;
+		private var _prevScaleX:Number;
+		private var _prevScaleY:Number;
+		
 		private var _active:Boolean = false;
 		
 		
 		private var _cell:int = 0;
-		
-		public function get x():Number { return _x;}
-		public function get y():Number { return _y;}
-		
-		
-		public var t:Vector.<Number> = Vector.<Number>([0,0,0,0]);
-		public var rs:Vector.<Number> = Vector.<Number>([0,1,1,0]);
 		
 		public function set cell(value:int):void
 		{
@@ -77,36 +76,6 @@
 		private var _sourceBounds:Rectangle = new Rectangle();
 		
 		
-		public function move(x:Number,y:Number):void
-		{
-			if(mDirty == false)	
-			{
-				m.appendTranslation(x- _x,y - _y,0);
-			}
-			_x = x;
-			_y = y;
-			t[2] = x;
-			t[3] = y;
-		}
-		public function set x(value:Number):void
-		{
-			if(mDirty == false)	
-			{
-				m.appendTranslation(value - _x,0,0);
-			}
-			_x = value;
-			t[2] = value;
-		}
-		
-		public function set y(value:Number):void
-		{
-			if(mDirty == false)	
-			{
-				m.appendTranslation(0,value - _y,0);
-			}
-			_y = value;			
-			t[3] = value;
-		}
 		public function set active(value:Boolean):void
 		{
 			if(value == _active)
@@ -119,12 +88,6 @@
 		{
 			return _active;
 		}
-		public function set rotation(value:Number):void
-		{
-			_rotation = value;
-			mDirty = true;
-		}
-		public function get rotation():Number { return _rotation; }
 		public function Actor()
 		{
 			
@@ -134,22 +97,49 @@
 			
 		}
 		
-		public function getBlitXForm():Matrix3D
+		public var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, 0,0,0,0]);
+		
+		private function updateXF():void
 		{
-			if(mDirty)	
+			var width:Number = _asset.width;
+			var height:Number = _asset.height;
+			m.identity();
+			m.appendScale(width,height,1);
+			m.appendTranslation((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY,0);
+			m.appendScale(scaleX,scaleY,1);
+			if(rotation != 0)
+				m.appendRotation(rotation,Vector3D.Z_AXIS);
+			m.appendTranslation(x,y,-depth/30000);
+			mDirty = false;
+	
+			
+			m.transpose();
+			var newXF:Vector.<Number>= m.rawData;
+			newXF.push(xf[16],xf[17],xf[18],xf[19]);
+			xf = newXF;
+			
+			_prevX = x;
+			_prevY = y;
+			_prevRotation = rotation;
+			_prevScaleX = scaleX;
+			_prevScaleY = scaleY;
+			
+		}
+		
+		public function getBlitXForm():Vector.<Number>
+		{
+			if(mDirty || rotation != _prevRotation || scaleX != _prevScaleX || scaleY != _prevScaleY)	
 			{
-				var width:Number = _asset.width;
-				var height:Number = _asset.height;
-				m.identity();
-				m.appendScale(width,height,1);
-				m.appendTranslation((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY,0);
-				m.appendScale(scaleX,scaleY,1);
-				if(rotation != 0)
-					m.appendRotation(_rotation,Vector3D.Z_AXIS);
-				m.appendTranslation(_x,_y,-depth/30000);
-				mDirty = false;
+				updateXF();
+						
+			} else if (x != _prevX || y != _prevY)
+			{
+				xf[3] += x-_prevX;
+				xf[7] += y-_prevY;
+				_prevX = x;
+				_prevY = y;
 			}
-			return m;
+			return xf;
 		}
 
 		public function getBlitSourceRC():Vector.<Number>
@@ -165,10 +155,10 @@
 		{
 			var width:Number = _asset.width/_asset.texture.width/_asset.cellColumnCount;
 			var height:Number = _asset.height/_asset.texture.height/_asset.cellRowCount;
-			sourceRC[0] = width;
-			sourceRC[1] = height;
-			sourceRC[2] = width * (_cell % _asset.cellColumnCount);
-			sourceRC[3]  = height * Math.floor(_cell / _asset.cellColumnCount);
+			xf[16] = width;
+			xf[17] = height;
+			xf[18] = width * (_cell % _asset.cellColumnCount);
+			xf[19]  = height * Math.floor(_cell / _asset.cellColumnCount);
 			sourceRCDirty = false;			
 		}
 		
@@ -192,11 +182,6 @@
 		public function set asset(v:Asset):void
 		{
 			_asset = v;
-			rs[0] = 0;
-			rs[1] = _asset.width;
-			rs[2] = _asset.height;
-			t[0] = -_asset.width/2;
-			t[1] = -_asset.height/2;
 			
 			updateSourceRC();
 		}
