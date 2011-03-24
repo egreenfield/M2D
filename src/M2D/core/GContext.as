@@ -67,14 +67,14 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		private static const NUM_SHARED_VERTEX_CONTSTANTS:int = 5;
-		private static const NUM_CONSTANTS_PER_SPRITE:Number = 5;
+		private static const NUM_CONSTANTS_PER_SPRITE:Number = 3;
 		private static const MAX_BATCH_SIZE:int = Math.floor((128-NUM_SHARED_VERTEX_CONTSTANTS)/NUM_CONSTANTS_PER_SPRITE);
 		private static const VERTEX_COUNT:Number = 4*MAX_BATCH_SIZE;
 		private static const INDEX_COUNT:Number = 6*MAX_BATCH_SIZE;
-		private static const VERTEX_LENGTH:Number = 6;
-		private static const NUM_CONSTANTS_USED_FOR_MATRIX:Number = 4;
+		private static const VERTEX_LENGTH:Number = 8;
+		private static const NUM_CONSTANTS_USED_FOR_MATRIX:Number = 2;
 		
-		private static const CONSTANTS:Vector.<Number> = Vector.<Number> ( [1,2,3,4] ); 
+		private static const CONSTANTS:Vector.<Number> = Vector.<Number> ( [0,0,0,0] ); 
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 // private statics
@@ -91,10 +91,14 @@
 		
 		private static const DEFAULT_VERTEX_SHADER:String =
 			"mov vt1, va0	\n" +
-			"m44 vt1, vt1, vc[va2.x]		\n" +	// 4x4 matrix transform from world space to output clipspace
+			"mov vt2, vc[va2.x] \n" +		// copy the model->world transform from constants 
+			"mov vt3, vc[va2.y] \n" +
+			"mov vt4, vc0 \n" +
+			"mov vt4.z, vc[va2.x].w \n" +
+			"m33 vt1.xyz, vt1, vt2		\n" +	// 4x4 matrix transform from world space to output clipspace
 			"m44 op, vt1, vc1		\n" +	// 4x4 matrix transform from world space to output clipspace
-			"mul vt2, va1, vc[va2.y]		\n" +	// scale tex coords by texture transform
-			"add vt2.xy, vt2.xy, vc[va2.y].zw		\n" +	// offset tex coords by texture transform
+			"mul vt2, va1, vc[va2.z]		\n" +	// scale tex coords by texture transform
+			"add vt2.xy, vt2.xy, vc[va2.z].zw		\n" +	// offset tex coords by texture transform
 			"mov v0, vt2		\n" +	// copy xformed tex coords to fragment program
 			"";
 		private static const ALPHA_TEXTURE_SHADER:String =
@@ -128,10 +132,10 @@
 					var tOffset:Number = constantOffset+NUM_SHARED_VERTEX_CONTSTANTS;
 					var uvOffset:Number = constantOffset+NUM_SHARED_VERTEX_CONTSTANTS+NUM_CONSTANTS_USED_FOR_MATRIX;
 					vertexVector.push(
-						0,0,0,0,	tOffset,uvOffset,
-						1,0,1,0,	tOffset,uvOffset,
-						0,1,0,1,	tOffset,uvOffset,
-						1,1,1,1,	tOffset,uvOffset
+						0,0,1,0,0,	tOffset,tOffset+1,uvOffset,
+						1,0,1,1,0,	tOffset,tOffset+1,uvOffset,
+						0,1,1,0,1,	tOffset,tOffset+1,uvOffset,
+						1,1,1,1,1,	tOffset,tOffset+1,uvOffset
 					);
 					indexVector.push(
 						vertexOffset, vertexOffset+1, vertexOffset+2,vertexOffset+1,vertexOffset+2,vertexOffset+3
@@ -210,9 +214,9 @@
 			
 			// can cache to remember when these have been set recently to skip repeating it.
 			_context.setProgram( _shaderProgram );
-			_context.setVertexBufferAt( 0, _vertexBuffer, 0, Context3DVertexBufferFormat.FLOAT_2 );
-			_context.setVertexBufferAt( 1, _vertexBuffer, 2, Context3DVertexBufferFormat.FLOAT_2 );
-			_context.setVertexBufferAt( 2, _vertexBuffer, 4, Context3DVertexBufferFormat.FLOAT_2 );			
+			_context.setVertexBufferAt( 0, _vertexBuffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
+			_context.setVertexBufferAt( 1, _vertexBuffer, 3, Context3DVertexBufferFormat.FLOAT_2 );
+			_context.setVertexBufferAt( 2, _vertexBuffer, 5, Context3DVertexBufferFormat.FLOAT_3 );			
 			_context.setVertexBufferAt( 3, null);			
 			_context.setVertexBufferAt( 4, null);			
 			_context.setProgramConstantsFromVector( Context3DProgramType.VERTEX, 0, CONSTANTS);
@@ -248,7 +252,7 @@
 			for(var i:int = base;i<end;i++)
 			{
 				var xForm:Vector.<Number>= sources[i].getBlitXForm();
-				ctx.setProgramConstantsFromVector( Context3DProgramType.VERTEX, constantOffset, xForm);								
+				ctx.setProgramConstantsFromVector( Context3DProgramType.VERTEX, constantOffset, xForm,NUM_CONSTANTS_PER_SPRITE);								
 				constantOffset += NUM_CONSTANTS_PER_SPRITE;
 			}
 			

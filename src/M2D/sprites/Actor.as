@@ -29,7 +29,6 @@
 */package M2D.sprites
 {
 	import M2D.core.IBlitOp;
-	import M2D.core.RC;
 	
 	import flash.geom.Matrix;
 	import flash.geom.Matrix3D;
@@ -97,7 +96,7 @@
 			
 		}
 		
-		public var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1, 0,0,0,0]);
+		public var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,0, 0,0,0,0]);
 		
 		private function updateXF():void
 		{
@@ -115,7 +114,14 @@
 			
 			m.transpose();
 			var newXF:Vector.<Number>= m.rawData;
-			newXF.push(xf[16],xf[17],xf[18],xf[19]);
+//			newXF.push(xf[16],xf[17],xf[18],xf[19]);
+			newXF[2] = newXF[3];
+			newXF[6] = newXF[7];
+			newXF[3] = newXF[11];
+			newXF[8] = xf[8];
+			newXF[9] = xf[9];
+			newXF[10] = xf[10];
+			newXF[11] = xf[11];
 			xf = newXF;
 			
 			_prevX = x;
@@ -134,8 +140,8 @@
 						
 			} else if (x != _prevX || y != _prevY)
 			{
-				xf[3] += x-_prevX;
-				xf[7] += y-_prevY;
+				xf[2] += x-_prevX;
+				xf[6] += y-_prevY;
 				_prevX = x;
 				_prevY = y;
 			}
@@ -155,10 +161,10 @@
 		{
 			var width:Number = _asset.width/_asset.texture.width/_asset.cellColumnCount;
 			var height:Number = _asset.height/_asset.texture.height/_asset.cellRowCount;
-			xf[16] = width;
-			xf[17] = height;
-			xf[18] = width * (_cell % _asset.cellColumnCount);
-			xf[19]  = height * Math.floor(_cell / _asset.cellColumnCount);
+			xf[8] = width;
+			xf[9] = height;
+			xf[10] = width * (_cell % _asset.cellColumnCount);
+			xf[11]  = height * Math.floor(_cell / _asset.cellColumnCount);
 			sourceRCDirty = false;			
 		}
 		
