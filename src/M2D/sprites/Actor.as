@@ -42,6 +42,8 @@
 		public var scaleX:Number = 1;
 		public var scaleY:Number = 1;
 		public var depth:Number = 0;
+		public var alpha:Number = 1;
+		
 		public function get width():Number { return _asset.width; }
 		public function get height():Number {return _asset.height;}
 		public var rotation:Number = 0;
@@ -115,9 +117,11 @@
 			m.transpose();
 			var newXF:Vector.<Number>= m.rawData;
 //			newXF.push(xf[16],xf[17],xf[18],xf[19]);
-			newXF[2] = newXF[3];
-			newXF[6] = newXF[7];
-			newXF[3] = newXF[11];
+			newXF[2] = newXF[3];	// tx
+			newXF[6] = newXF[7];	// ty
+			newXF[3] = newXF[11];	// tz
+			newXF[7] = alpha;		// alpha
+			
 			newXF[8] = xf[8];
 			newXF[9] = xf[9];
 			newXF[10] = xf[10];

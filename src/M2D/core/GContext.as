@@ -100,11 +100,13 @@
 			"mul vt2, va1, vc[va2.z]		\n" +	// scale tex coords by texture transform
 			"add vt2.xy, vt2.xy, vc[va2.z].zw		\n" +	// offset tex coords by texture transform
 			"mov v0, vt2		\n" +	// copy xformed tex coords to fragment program
+			"mov v1.a, vc[va2.y].w \n" +	// also copy over alpha
 			"";
 		private static const ALPHA_TEXTURE_SHADER:String =
 			"mov ft0, v0\n" +
 			"tex ft1, ft0, fs0 <2d,clamp,linear>\n"+ // sample texture 0
-			"add ft2,ft1,fc0\n" +
+			"mul ft1.a, ft1.a, v1.a\n" +
+			"add ft2,ft1,fc0\n" +			
 			"kil ft2.w\n" +
 			"mov oc, ft1\n" +
 			"\n";		
