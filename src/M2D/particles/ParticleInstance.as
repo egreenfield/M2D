@@ -125,7 +125,7 @@
 			if(symbol.generateInWorldSpace)
 			{
 				tmpMatrix.identity();
-				tmpMatrix.appendTranslation(0,0,-depth/3000);			
+				tmpMatrix.appendTranslation(0,0,depth);			
 			}
 			else
 			{

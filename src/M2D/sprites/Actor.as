@@ -41,18 +41,16 @@
 		public var y:Number = 0;
 		public var scaleX:Number = 1;
 		public var scaleY:Number = 1;
-		public var depth:Number = 0;
-		public var alpha:Number = 1;
 		
-		public function get width():Number { return _asset.width/_asset.cellColumnCount; }
-		public function get height():Number {return _asset.height/_asset.cellRowCount;}
+		public var width:Number 
+		public var height:Number
 		public var rotation:Number = 0;
 		public var sourceRCDirty:Boolean = true;
 		
 		public var regX:Number;
 		public var regY:Number;
 
-		private var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,0, 0,0,0,0]);
+		private var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,1, 0,0,0,0]);
 
 		private var _prevX:Number;
 		private var _prevY:Number;
@@ -65,6 +63,10 @@
 		
 		private var _cell:int = 0;
 		
+		public function set depth(v:Number):void {xf[3] = v;}
+		public function get depth():Number { return -xf[3]*3000;}
+		public function set alpha(v:Number):void {xf[7] = v;}
+		public function get alpha():Number { return xf[7];} 
 		public function set cell(value:int):void
 		{
 			if(value != _cell)
@@ -105,13 +107,11 @@
 		{
 			if(rotation != _prevRotation || scaleX != _prevScaleX || scaleY != _prevScaleY)	
 			{
-				var width:Number = _asset.width/_asset.cellColumnCount;
-				var height:Number = _asset.height/_asset.cellRowCount;
-				
-				
 				var ar:Number = -rotation*Math.PI/180;
 				var c:Number = Math.cos(ar);
 				var s:Number = Math.sin(ar);
+			
+				
 				
 				var csy:Number = c*scaleY;
 				var csx:Number = c*scaleX;
@@ -124,12 +124,12 @@
 				xf[0] = csx*width;
 				xf[1] = ssy*height;
 				xf[2] = csx*nrx + ssy*nry + x;			
-				xf[3] = -depth/3000; // depth 
+				//xf[3] = -depth/3000; // depth 
 				
 				xf[4] = nssx*width;
 				xf[5] = csy*height;
 				xf[6] = nssx*nrx + csy*nry + y;			
-				xf[7] = alpha;
+				//xf[7] = alpha;
 				
 				_prevX = x;
 				_prevY = y;
@@ -149,8 +149,8 @@
 
 		private function updateSourceRC():void
 		{
-			var width:Number = _asset.width/_asset.texture.width/_asset.cellColumnCount;
-			var height:Number = _asset.height/_asset.texture.height/_asset.cellRowCount;
+			var width:Number = width/_asset.texture.width;
+			var height:Number = height/_asset.texture.height;
 			xf[8] = width;
 			xf[9] = height;
 			xf[10] = width * (_cell % _asset.cellColumnCount);
@@ -177,6 +177,8 @@
 			_asset = v;
 			regX = _asset.width/_asset.cellColumnCount/2;
 			regY = _asset.height/_asset.cellRowCount/2;
+			width = _asset.width/_asset.cellColumnCount; 
+			height = _asset.height/_asset.cellRowCount;			
 			
 			updateSourceRC();
 		}

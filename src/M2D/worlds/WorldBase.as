@@ -117,7 +117,7 @@
 				return;
 			trace("Build Camera");
 			cameraMatrix = new Matrix3D();
-			cameraMatrix.appendScale(2/bounds.width,-2/bounds.height,1);
+			cameraMatrix.appendScale(2/bounds.width,-2/bounds.height,-1/3000);
 			cameraMatrix.appendTranslation(-1,1,0);//(bounds.left-stage3D.viewPort.width/2),0,0);//-(bounds.top - stage3D.viewPort.height/2),0);
 			
 			gContext.cameraMatrix = cameraMatrix;
