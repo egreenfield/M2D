@@ -15,7 +15,7 @@ package M2D.worlds
 		
 		public var autoRender:Boolean = true;
 		public var world:WorldBase;
-		public var renderEveryFrame:Boolean = true;
+		public var renderEveryFrame:Boolean = false;
 		
 		public function RenderMgr(world:WorldBase)
 		{

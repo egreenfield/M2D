@@ -34,6 +34,5 @@
 	public interface IBlitOp
 	{
 		function getBlitXForm():Vector.<Number>;
-		function getBlitSourceRC():Vector.<Number>;		
 	}
 }

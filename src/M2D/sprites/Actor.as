@@ -44,20 +44,22 @@
 		public var depth:Number = 0;
 		public var alpha:Number = 1;
 		
-		public function get width():Number { return _asset.width; }
-		public function get height():Number {return _asset.height;}
+		public function get width():Number { return _asset.width/_asset.cellColumnCount; }
+		public function get height():Number {return _asset.height/_asset.cellRowCount;}
 		public var rotation:Number = 0;
 		public var sourceRCDirty:Boolean = true;
 		
 		public var regX:Number;
 		public var regY:Number;
-		
+
+		private var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,0, 0,0,0,0]);
+
 		private var _prevX:Number;
 		private var _prevY:Number;
 		private var _prevRotation:Number;
 		private var _prevScaleX:Number;
 		private var _prevScaleY:Number;
-		
+				
 		private var _active:Boolean = false;
 		
 		
@@ -98,49 +100,42 @@
 			
 		}
 		
-		public var xf:Vector.<Number> = Vector.<Number>([1,0,0,0, 0,1,0,0, 0,0,0,0]);
-		
-		private function updateXF():void
-		{
-			var width:Number = _asset.width;
-			var height:Number = _asset.height;
-			m.identity();
-			m.appendScale(width,height,1);
-			m.appendTranslation((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY,0);
-			m.appendScale(scaleX,scaleY,1);
-			if(rotation != 0)
-				m.appendRotation(rotation,Vector3D.Z_AXIS);
-			m.appendTranslation(x,y,-depth/30000);
-			mDirty = false;
-	
-			
-			m.transpose();
-			var newXF:Vector.<Number>= m.rawData;
-//			newXF.push(xf[16],xf[17],xf[18],xf[19]);
-			newXF[2] = newXF[3];	// tx
-			newXF[6] = newXF[7];	// ty
-			newXF[3] = newXF[11];	// tz
-			newXF[7] = alpha;		// alpha
-			
-			newXF[8] = xf[8];
-			newXF[9] = xf[9];
-			newXF[10] = xf[10];
-			newXF[11] = xf[11];
-			xf = newXF;
-			
-			_prevX = x;
-			_prevY = y;
-			_prevRotation = rotation;
-			_prevScaleX = scaleX;
-			_prevScaleY = scaleY;
-			
-		}
 		
 		public function getBlitXForm():Vector.<Number>
 		{
-			if(mDirty || rotation != _prevRotation || scaleX != _prevScaleX || scaleY != _prevScaleY)	
+			if(rotation != _prevRotation || scaleX != _prevScaleX || scaleY != _prevScaleY)	
 			{
-				updateXF();
+				var width:Number = _asset.width/_asset.cellColumnCount;
+				var height:Number = _asset.height/_asset.cellRowCount;
+				
+				
+				var ar:Number = -rotation*Math.PI/180;
+				var c:Number = Math.cos(ar);
+				var s:Number = Math.sin(ar);
+				
+				var csy:Number = c*scaleY;
+				var csx:Number = c*scaleX;
+				
+				var nrx:Number = -regX;
+				var nry:Number = -regY;
+				var nssx:Number = -s*scaleX;
+				var ssy:Number = s*scaleY;
+				
+				xf[0] = csx*width;
+				xf[1] = ssy*height;
+				xf[2] = csx*nrx + ssy*nry + x;			
+				xf[3] = -depth/3000; // depth 
+				
+				xf[4] = nssx*width;
+				xf[5] = csy*height;
+				xf[6] = nssx*nrx + csy*nry + y;			
+				xf[7] = alpha;
+				
+				_prevX = x;
+				_prevY = y;
+				_prevRotation = rotation;
+				_prevScaleX = scaleX;
+				_prevScaleY = scaleY;
 						
 			} else if (x != _prevX || y != _prevY)
 			{
@@ -152,15 +147,6 @@
 			return xf;
 		}
 
-		public function getBlitSourceRC():Vector.<Number>
-		{
-			if(sourceRCDirty)
-			{
-				updateSourceRC();
-			}
-			
-			return sourceRC;
-		}
 		private function updateSourceRC():void
 		{
 			var width:Number = _asset.width/_asset.texture.width/_asset.cellColumnCount;
@@ -172,10 +158,7 @@
 			sourceRCDirty = false;			
 		}
 		
-		private var m:Matrix3D = new Matrix3D();
-		public var sourceRC:Vector.<Number> = new Vector.<Number>(4);
 		
-		private var mDirty:Boolean = true;
 		public function get2DMatrix():Matrix
 		{
 			var m:Matrix = new Matrix();
@@ -192,6 +175,8 @@
 		public function set asset(v:Asset):void
 		{
 			_asset = v;
+			regX = _asset.width/_asset.cellColumnCount/2;
+			regY = _asset.height/_asset.cellRowCount/2;
 			
 			updateSourceRC();
 		}

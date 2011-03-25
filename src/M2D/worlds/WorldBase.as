@@ -158,7 +158,7 @@
 		{
 			jobs.push(job);
 			job.world = this;
-		}		
+		}
 		
 		public function get clock():Clock
 		{

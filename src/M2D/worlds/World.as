@@ -47,7 +47,7 @@
 		
 		override public function initContext(stage:Stage,container:DisplayObjectContainer,slot:int,bounds:Rectangle):void
 		{
-			renderMgr.init(container);
+//			renderMgr.init(container);
 			super.initContext(stage,container,slot,bounds);
 		}
 		// ======================================================================
