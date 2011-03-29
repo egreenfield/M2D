@@ -1,6 +1,5 @@
 package M2D.worlds
 {
-	import M2D.core.RenderTask;
 	
 	import flash.display.DisplayObject;
 	import flash.display.DisplayObjectContainer;
@@ -36,10 +35,6 @@ package M2D.worlds
 				root.addEventListener(Event.ADDED_TO_STAGE,addedToStageHandler,false,0,true);
 		}
 		
-		public function addTask(task:RenderTask):void
-		{
-			
-		}
 		
 		private function enterFrameHandler(e:Event):void
 		{
