@@ -153,8 +153,8 @@
 			var height:Number = height/_asset.texture.height;
 			xf[8] = width;
 			xf[9] = height;
-			xf[10] = width * (_cell % _asset.cellColumnCount);
-			xf[11]  = height * Math.floor(_cell / _asset.cellColumnCount);
+			xf[10] = _asset.offsetLeft/_asset.texture.width + width * (_cell % _asset.cellColumnCount);
+			xf[11]  = _asset.offsetTop/_asset.texture.height + height * Math.floor(_cell / _asset.cellColumnCount);
 			sourceRCDirty = false;			
 		}
 		

@@ -78,6 +78,8 @@
 			{
 				a.width = rc.width;
 				a.height = rc.height;
+				a.offsetLeft = rc.left;
+				a.offsetTop = rc.top;
 			}
 			a.texture = tx;
 			a.library = this;

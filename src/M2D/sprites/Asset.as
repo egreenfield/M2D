@@ -43,6 +43,8 @@
 		public var cellColumnCount:int = 1;
 		public var cellRowCount:int = 1;
 		
+		public var offsetLeft:Number = 0;
+		public var offsetTop:Number = 0;
 		
 			
 		public function createActor():Actor
