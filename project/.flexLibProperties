@@ -8,7 +8,6 @@
     <classEntry path="M2D.particles.StaticParticleSource"/>
     <classEntry path="M2D.particles.ParticleSource"/>
     <classEntry path="M2D.core.RenderTask"/>
-    <classEntry path="M2D.worlds.RenderMgr"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

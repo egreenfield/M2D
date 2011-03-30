@@ -1,5 +1,44 @@
 pick correlation
 blend modes
-transparency
 movieclip -> spritesheet generation
+better sorting
+	- move objects into 'render data'
+	- generate layer key for each render data
+	- sort on render key
+		- prioritize:
+			- transparency first,
+			- if transparent:
+				- then depth (back to front)
+				- then material
+			- if opaque
+				- then material
+				- then depth (front to back)
 	
+	- walk the render data list, calling associated render job
+	- let each render job process N contiguous render data it can handle
+
+	
+- particles
+	- integrate the rest of Flint particle's initializer objects
+	- support alpha properly
+	- support color tweens
+	- expand capabilities of vertex shader / simulation
+		- rotation?
+		- generate from flint-like data driven specifiers?
+- DOM
+	- effiicient removal
+
+- optimization
+	- do we need both cpu-side transformation and gpu side transformation?
+		- right now, seems to be a wash, with chance for better optimization of cpu side 
+	- better calculation of vertex buffer sizes?
+	- efficient support for static sprites
+		- only update vertices for modified sprites
+		- only upload modified buffers.
+		- detect or manually mark static sprites?
+	
+- move into Alchemy
+
+- make GContext generic again
+	- blit method to accept list of source rects, list of forms
+	- optimized…blit method to accept list of source rects, list of reg points?
