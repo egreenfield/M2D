@@ -49,6 +49,8 @@
 		protected var slot:int;
 		protected var stage:Stage;
 		public var backgroundColor:uint = 0xFFAAAA;
+		public var readyCallback:Function;
+		
 		private var _clock:Clock;
 		
 		public function WorldBase()
@@ -107,6 +109,8 @@
 			context3D.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA,Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
 			context3D.setDepthTest(true,Context3DCompareMode.LESS_EQUAL);
 			gContext.init(context3D);
+			if(readyCallback != null)
+				readyCallback(this);
 		}
 		
 		
@@ -132,7 +136,9 @@
 			numDrawTrianglesCallsPerFrame = 0;
 			
 			if(context3D == null)
+			{
 				return;
+			}
 			
 			context3D.clear(((backgroundColor & 0xFF0000) >> 16	)/256,
 				((backgroundColor & 0x00FF00) >> 8	)/256,
