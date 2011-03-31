@@ -28,14 +28,9 @@
 * THE SOFTWARE.
 */package M2D.particles
 {
-	import M2D.core.IBlitOp;
 	import M2D.worlds.IRenderJob;
 	import M2D.worlds.RenderTask;
 	import M2D.worlds.WorldBase;
-	
-	import flash.display3D.Context3D;
-	import flash.geom.Rectangle;
-	import flash.utils.Dictionary;
 	
 	public class ParticleLibrary implements IRenderJob
 	{
@@ -60,35 +55,16 @@
 		public function ParticleLibrary()
 		{
 		}
-		
-		private var InstanceMap:Dictionary = new Dictionary(true);
-		
-		private function getInstanceMap(symbol:ParticleSymbol):ParticleInstanceList
-		{
-			var list:ParticleInstanceList = InstanceMap[symbol];
-			if(list == null)
-				list = InstanceMap[symbol] = new ParticleInstanceList();
-			return list;
-		}
 		public function createSymbol():ParticleSymbol
 		{
 			var a:ParticleSymbol = new ParticleSymbol();
-			var list:ParticleInstanceList = getInstanceMap(a);
 			a.library = this;
 			return a;
 		}
 		
 		public function activate(instance:ParticleInstance,active:Boolean):void
 		{
-			var list:ParticleInstanceList = getInstanceMap(instance.symbol);
-			if(active)
-			{
-				list.blitOps.push(instance);
-			}
-			else
-			{
-			}
-			list.activeInstancesDirty = true;
+			instance.task.job = this;
 			world.addRenderData(instance.task);			
 		}				
 		
@@ -97,23 +73,6 @@
 			var pi:ParticleInstance = renderData[start].data as ParticleInstance;
 			pi.render();
 			return start+1;
-		}
-
-		
-		private function compareDepth(lhs:ParticleInstance,rhs:ParticleInstance):int
-		{
-			if(lhs.depth < rhs.depth)
-				return -1;
-			else if (lhs.depth > rhs.depth)
-				return 1;
-			return 0;
-		}
+		}		
 	}
-}
-import M2D.particles.ParticleInstance;
-
-class ParticleInstanceList
-{
-	public var activeInstancesDirty:Boolean = true;
-	public var blitOps:Vector.<ParticleInstance> = new Vector.<ParticleInstance>();
 }

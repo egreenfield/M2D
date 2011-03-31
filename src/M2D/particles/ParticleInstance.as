@@ -37,7 +37,6 @@
 	import flash.display3D.Context3DProgramType;
 	import flash.display3D.Context3DVertexBufferFormat;
 	import flash.geom.Matrix3D;
-	import flash.geom.Vector3D;
 
 	public class ParticleInstance extends Instance
 	{

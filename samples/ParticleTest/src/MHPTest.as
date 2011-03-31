@@ -108,7 +108,7 @@
 			
 			
 			particleSymbol.texture = kTexture;
-			particleSymbol.birthDelay = .05;
+			particleSymbol.birthDelay = .02;
 			particleSymbol.lifespan = 2000;
 			particleSymbol.generateInWorldSpace = true;
 			
@@ -138,7 +138,7 @@
 				particle = particleSymbol.createInstance();
 				particle.x = Math.random()*viewWidth/2 + viewWidth/4 - viewWidth/4;
 				particle.y = Math.random() * 400+ 500 - 200;
-				particle.depth = -10 ;
+				particle.depth = 10 ;
 
 				/*
 				ac = asset.createActor();
@@ -280,9 +280,7 @@
 			mpf.sample(delta);
 			
 			previousTime = t;
-			var drawTriTime:Number = (world is World)? World(world).timeInDrawTriangles:0;
-			var numCalls:Number = (world is World)? World(world).numDrawTrianglesCallsPerFrame:0;
-			reportTime(clock.processingTime,drawTriTime,numCalls);
+			reportTime(clock.processingTime,0,0);
 		}
 		
 		private var lastUpdate:Number = getTimer();
