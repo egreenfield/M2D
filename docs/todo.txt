@@ -42,3 +42,8 @@ better sorting
 - make GContext generic again
 	- blit method to accept list of source rects, list of forms
 	- optimized…blit method to accept list of source rects, list of reg points?
+	
+- texture atlas
+    - Add support for consolidation of disparate BatchTextures into texture atlases.
+    
+- tile maps
