@@ -30,6 +30,7 @@
 {
 	import M2D.time.Clock;
 	import M2D.worlds.Instance;
+	import M2D.worlds.RenderTask;
 	import M2D.worlds.WorldBase;
 	
 	import flash.display3D.Context3D;
@@ -171,6 +172,12 @@
 			}
 			
 		}	
+		
+		override protected function updateKey():void
+		{
+			task.setKey(RenderTask.OPAQUE | RenderTask.makeRenderCode(symbol.library.renderID) | RenderTask.makeMaterialCode(symbol.texture.textureID),RenderTask.makeDepthCode(depth));
+		}
+		
 	}
 }
 import M2D.particles.ParticleParameterBuffer;

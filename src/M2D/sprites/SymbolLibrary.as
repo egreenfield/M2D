@@ -31,6 +31,7 @@
 	import M2D.core.IBlitOp;
 	import M2D.worlds.BatchTexture;
 	import M2D.worlds.IRenderJob;
+	import M2D.worlds.RenderTask;
 	import M2D.worlds.WorldBase;
 	
 	import flash.display3D.Context3D;
@@ -40,6 +41,8 @@
 	public class SymbolLibrary implements IRenderJob
 	{
 		private var _world:WorldBase;
+		private var _renderID:uint;
+		
 		public function set world(w:WorldBase):void
 		{
 			this._world = w;
@@ -52,22 +55,9 @@
 		{
 		}
 
-		private var _numDrawTriangleCalls:int = 0;		
-		private var _timeInDrawTriangles:int = 0;		
-		private var blitOps:Vector.<IBlitOp> = new Vector.<IBlitOp>();
 		
-		private var actorMap:Dictionary = new Dictionary(true);
-		
-		private function getActorMap(tx:BatchTexture):ActorList
-		{
-			var list:ActorList = actorMap[tx];
-			if(list == null)
-				list = actorMap[tx] = new ActorList();
-			return list;
-		}
 		public function createAsset(tx:BatchTexture,rc:Rectangle = null):Asset
 		{
-			var list:ActorList = getActorMap(tx);
 			var a:Asset = new Asset();
 			if(rc == null)
 			{
@@ -88,67 +78,22 @@
 
 		public function activate(actor:Actor,active:Boolean):void
 		{
-			var list:ActorList = getActorMap(actor.asset.texture);
-			if(active)
-			{
-				list.blitOps.push(actor);
-			}
-			else
-			{
-			}
-			list.activeActorsDirty = true;
+			actor.task.job = this;
+			world.addRenderData(actor.task);
 		}				
-		
-		public function get numDrawTrianglesCallsPerFrame():int { return _numDrawTriangleCalls;}
-		public function get timeInDrawTriangles():int {return _timeInDrawTriangles;}
-		
-		
-		
-		public function render():void
+		public function set renderID(value:uint):void
 		{
-			for(var aTexture:* in actorMap)
-			{
-				var list:ActorList = actorMap[aTexture];
-				renderActors(aTexture,list);
-			}
+			_renderID = value;
 		}
-		
-		private function renderActors(tx:BatchTexture,list:ActorList):void
+		public function get renderID():uint
 		{
-			var context3D:Context3D = world.context3D;
-			var blitOps:Vector.<Actor> = list.blitOps;
-			
-			tx.prepare();
-			
-			if(list.activeActorsDirty)
-			{
-				var moveDest:int = 0;
-				var len:int = blitOps.length;
-				for(var i:int = 0;i<len;i++)
-				{
-					var actor:Actor = blitOps[i] as Actor;
-					if(actor.active == false)
-						continue;
-					blitOps[moveDest] = actor;
-					moveDest++;
-				}
-				if(moveDest < len)
-				{
-					blitOps.splice(moveDest,len-moveDest);
-				}
-				list.blitOps = blitOps.sort(compareDepth);
-				list.activeActorsDirty = false;
-			}
-			world.gContext.blit2D(tx.texture,list.blitOps);			
+			return _renderID;
 		}
-		
-		private function compareDepth(lhs:Actor,rhs:Actor):int
+						
+		public function render(renderData:Vector.<RenderTask>,start:uint):uint
 		{
-			if(lhs.depth < rhs.depth)
-				return -1;
-			else if (lhs.depth > rhs.depth)
-				return 1;
-			return 0;
+			var newResult:uint = world.gContext.blit2D(renderData,start,renderData.length);
+			return newResult;
 		}
 	}
 }

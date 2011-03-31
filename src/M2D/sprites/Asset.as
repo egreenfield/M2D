@@ -45,6 +45,7 @@
 		
 		public var offsetLeft:Number = 0;
 		public var offsetTop:Number = 0;
+		public var hasAlphaChannel:Boolean = false;
 		
 			
 		public function createActor():Actor

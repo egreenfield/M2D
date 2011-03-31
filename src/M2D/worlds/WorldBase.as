@@ -50,7 +50,10 @@
 		protected var stage:Stage;
 		public var backgroundColor:uint = 0xFFAAAA;
 		public var readyCallback:Function;
+		private var sorted:Boolean = false;
 		
+		public var renderTasks:Array = [];
+		public var sortedRenderTasks:Vector.<RenderTask>;
 		private var _clock:Clock;
 		
 		public function WorldBase()
@@ -104,10 +107,10 @@
 		
 		private function initContext3D():void
 		{
-			context3D.enableErrorChecking = true;
+			context3D.enableErrorChecking = false;
 			context3D.configureBackBuffer( bounds.width, bounds.height, antiAliasDepth, true); // fixed size
 			context3D.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA,Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
-			context3D.setDepthTest(true,Context3DCompareMode.LESS_EQUAL);
+			context3D.setDepthTest(true,Context3DCompareMode.GREATER_EQUAL);
 			gContext.init(context3D);
 			if(readyCallback != null)
 				readyCallback(this);
@@ -119,7 +122,7 @@
 		{
 			if(cameraDirty == false)
 				return;
-			trace("Build Camera");
+			//trace("Build Camera");
 			cameraMatrix = new Matrix3D();
 			cameraMatrix.appendScale(2/bounds.width,-2/bounds.height,1/3000);
 			cameraMatrix.appendTranslation(-1,1,0);//(bounds.left-stage3D.viewPort.width/2),0,0);//-(bounds.top - stage3D.viewPort.height/2),0);
@@ -127,13 +130,14 @@
 			gContext.cameraMatrix = cameraMatrix;
 			cameraDirty = false;
 		}
-		public var timeInDrawTriangles:int = 0;
-		public var numDrawTrianglesCallsPerFrame:int = 0;
+		
+		public function addRenderData(r:RenderTask):void
+		{
+			renderTasks.push(r);	
+		}
 		
 		public function render():void
 		{
-			timeInDrawTriangles = 0;
-			numDrawTrianglesCallsPerFrame = 0;
 			
 			if(context3D == null)
 			{
@@ -142,7 +146,7 @@
 			
 			context3D.clear(((backgroundColor & 0xFF0000) >> 16	)/256,
 				((backgroundColor & 0x00FF00) >> 8	)/256,
-				((backgroundColor & 0x0000FF) 		)/256);
+				((backgroundColor & 0x0000FF) 		)/256,0,0);
 			
 			if(cameraDirty)
 			{
@@ -152,14 +156,36 @@
 			
 			var nextGroup:int = 0;
 			
-			for(var i:int=0 ; i<jobs.length;i++) {
-				jobs[i].render();
-				timeInDrawTriangles += jobs[i].timeInDrawTriangles;
-				numDrawTrianglesCallsPerFrame += jobs[i].numDrawTrianglesCallsPerFrame;
+			
+			sortTasks();
+			
+			var len:uint = sortedRenderTasks.length;
+			
+			var renderIndex:uint = 0;
+//			var renderTaskCount:Number = 0;
+			//trace("*** rendering");
+			while(renderIndex<len)			{
+				renderIndex = sortedRenderTasks[renderIndex].job.render(sortedRenderTasks,renderIndex);
+//				renderTaskCount++;
 			}
+			//race("** rendered ",renderTaskCount,"Batches");
 			context3D.present();
 		}
 		
+		public function invalidateRenderSort(required:Boolean):void
+		{
+			if(required)
+				sorted = false;
+		}
+		private function sortTasks():void		
+		{
+			if(sorted == false) {
+				renderTasks.sortOn("key",Array.NUMERIC);
+				
+				sortedRenderTasks = Vector.<RenderTask>(renderTasks);
+				sorted = true;
+			}			
+		}
 		public function addJob(job:IRenderJob):void
 		{
 			jobs.push(job);

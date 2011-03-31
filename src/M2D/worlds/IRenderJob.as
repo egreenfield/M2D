@@ -33,8 +33,9 @@
 	{
 		function set world(value:WorldBase):void;
 		function get world():WorldBase;
-		function render():void;
-		function get numDrawTrianglesCallsPerFrame():int;
-		function get timeInDrawTriangles():int;
+		function render(renderData:Vector.<RenderTask>,start:uint):uint;
+		function set renderID(value:uint):void;
+		function get renderID():uint;
+		
 	}
 }

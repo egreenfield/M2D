@@ -8,6 +8,7 @@
     <classEntry path="M2D.particles.StaticParticleSource"/>
     <classEntry path="M2D.particles.ParticleSource"/>
     <classEntry path="M2D.core.RenderTask"/>
+    <classEntry path="utils.DebugUtils"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

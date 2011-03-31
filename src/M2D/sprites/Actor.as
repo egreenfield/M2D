@@ -29,13 +29,14 @@
 */package M2D.sprites
 {
 	import M2D.core.IBlitOp;
+	import M2D.worlds.RenderTask;
 	
 	import flash.geom.Matrix;
 	import flash.geom.Matrix3D;
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
 
-	public class Actor implements IBlitOp
+	public class Actor
 	{
 		public var x:Number = 0;
 		public var y:Number = 0;
@@ -45,6 +46,9 @@
 		public var width:Number 
 		public var height:Number
 		public var rotation:Number = 0;
+		private var cosR:Number;
+		public var sinR:Number;
+		
 		public var sourceRCDirty:Boolean = true;
 		
 		public var regX:Number;
@@ -63,10 +67,37 @@
 		
 		private var _cell:int = 0;
 		
-		public function set depth(v:Number):void {xf[3] = v;}
-		public function get depth():Number { return -xf[3]*3000;}
-		public function set alpha(v:Number):void {xf[7] = v;}
-		public function get alpha():Number { return xf[7];} 
+		
+		public var task:RenderTask;
+		
+		public function get depth():Number { return xf[3];}
+		public function get alpha():Number 
+		{ 
+			return xf[7];
+		}
+		
+		private function hasTransparency():Boolean { return xf[7] < 1 || _asset.hasAlphaChannel}
+		public function set depth(v:Number):void 
+		{
+			xf[3] = v;
+			updateKey();
+			invalidateRenderSort(hasTransparency());
+		}
+		public function set alpha(v:Number):void 
+		{
+			if(xf[7] == v)
+				return;
+			invalidateRenderSort(xf[7] == 1);
+			xf[7] = v;
+			updateKey();
+		}
+
+		
+		private function invalidateRenderSort(required:Boolean):void
+		{
+			_asset.library.world.invalidateRenderSort(required);
+		}
+		
 		public function set cell(value:int):void
 		{
 			if(value != _cell)
@@ -95,7 +126,8 @@
 		}
 		public function Actor()
 		{
-			
+			task = new RenderTask();
+			task.data = this;
 		}
 		public function update():void
 		{
@@ -107,9 +139,18 @@
 		{
 			if(rotation != _prevRotation || scaleX != _prevScaleX || scaleY != _prevScaleY)	
 			{
-				var ar:Number = -rotation*Math.PI/180;
-				var c:Number = Math.cos(ar);
-				var s:Number = Math.sin(ar);
+				
+				if(rotation != _prevRotation)
+				{
+					var ar:Number = -rotation*Math.PI/180;
+					var c:Number = cosR = Math.cos(ar);
+					var s:Number = sinR = Math.sin(ar);					
+				}
+				else
+				{
+					c = cosR;
+					s = sinR;
+				}
 			
 				
 				
@@ -181,10 +222,17 @@
 			height = _asset.height/_asset.cellRowCount;			
 			
 			updateSourceRC();
+			updateKey();
 		}
 		public function get asset():Asset
 		{
 			return _asset;
+		}
+		
+		private function updateKey():void
+		{
+			var isTransparent:Boolean = asset.hasAlphaChannel||(alpha < 1); 
+			task.setKey(((isTransparent)? RenderTask.TRANSPARENT:RenderTask.OPAQUE) | RenderTask.makeRenderCode(asset.library.renderID) | RenderTask.makeMaterialCode(asset.texture.textureID),RenderTask.makeDepthCode(depth,isTransparent));
 		}
 	}
 }

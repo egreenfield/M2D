@@ -65,7 +65,8 @@
 		
 		public var data:BitmapData;
 		public var assetMgr:AssetMgr;
-
+		public var textureID:uint;
+		
 
 		
 		private static var worldDataMap:Dictionary = new Dictionary(true);

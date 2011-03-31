@@ -29,6 +29,8 @@
 */package M2D.core
 {
 	import M2D.sprites.Actor;
+	import M2D.worlds.BatchTexture;
+	import M2D.worlds.RenderTask;
 	
 	import com.adobe.utils.AGALMiniAssembler;
 	
@@ -43,6 +45,8 @@
 	import flash.geom.Matrix3D;
 	import flash.geom.Rectangle;
 	import flash.utils.getTimer;
+	
+	import spark.components.DataRenderer;
 
 	public class GContext
 	{
@@ -67,13 +71,11 @@
 // constants
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 		
-		private static const NUM_SHARED_VERTEX_CONTSTANTS:int = 5;
-		private static const NUM_CONSTANTS_PER_SPRITE:Number = 3;
+		private static const NUM_SHARED_VERTEX_CONSTANTS:int = 5;
 		private static const MAX_BATCH_SIZE:int = 1500;//Math.floor((128-NUM_SHARED_VERTEX_CONTSTANTS)/NUM_CONSTANTS_PER_SPRITE);
 		private static const VERTEX_COUNT:Number = 4*MAX_BATCH_SIZE;
 		private static const INDEX_COUNT:Number = 6*MAX_BATCH_SIZE;
 		private static const VERTEX_LENGTH:Number = 3;
-		private static const NUM_CONSTANTS_USED_FOR_MATRIX:Number = 2;
 		private static const NUM_BUFFERS:int = 8;
 		
 		private static const CONSTANTS:Vector.<Number> = Vector.<Number> ( [0,0,0,0] ); 
@@ -81,17 +83,10 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 // private statics
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
-
 		private static var vertexVector:Vector.<Number> = null;
-		private static var uvVector:Vector.<Number> = null;
-		
+		private static var uvVector:Vector.<Number> = null;		
 		private static var indexVector:Vector.<uint> = new Vector.<uint>();
 
-		private static var tmpMatrix:Matrix3D = new Matrix3D();
-		private static var tmpVector:Vector.<Number> = Vector.<Number>([0,0,0,1]);
-		private static var tmpRC:Rectangle = new Rectangle();
-
-		
 		
 		private static const DEFAULT_VERTEX_SHADER:String =
 			"mov vt1, va0	\n" +
@@ -219,12 +214,14 @@
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 				
-		public function blit2D(source:Texture,sources:Vector.<Actor>):void
+		public function blit2D(sources:Vector.<RenderTask>,start:uint,end:uint):uint
 		{			
-			var count:int = sources.length;
-			var base:int = 0;
-
+			var mask:Number = RenderTask.TRANSPARENT_MASK | RenderTask.RENDER_MASK | RenderTask.MATERIAL_MASK;
+			var keyValue:Number = sources[start].highKey & mask;
+			var first:Actor = sources[start].data as Actor;			
+			var source:BatchTexture = first.asset.texture;
 			
+			source.prepare();
 			// can cache to remember when these have been set recently to skip repeating it.
 			_context.setProgram( _shaderProgram );
 			_context.setVertexBufferAt( 2, null);			
@@ -236,79 +233,100 @@
 			
 			
 			// likely must be set every time
-			_context.setTextureAt( 0, source);
+			_context.setTextureAt( 0, source.texture);
+
 			
-//			_numDrawTriangleCalls = 0;
-//			_timeInDrawTriangles = 0;
-			while(base < count)
-			{
-				var batchSize:int = Math.min(count - base,MAX_BATCH_SIZE);
-				blit2DBatch(sources,base,batchSize,_vertexBuffers[nextBuffer]);
-				nextBuffer = (nextBuffer+1)%NUM_BUFFERS;
-				base += batchSize;
-			}			
-		}
-		
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
-//----------------------------------------------------------------------------------------------------------------------------------------------------------
-		
-		private function blit2DBatch(sources:Vector.<Actor>,base:int,count:int,vertexBuffer:VBuffer):Number
-		{
+			var next:uint = start;
+			//nextBuffer = 0;
+			var vertexOffset:Number = 0;
+			var bufferCount:Number = 0;
+			var vertexBuffer:VBuffer = _vertexBuffers[nextBuffer];
 			
 			// assume our vertex buffer has enough space for all our vertices;
-			var constantBase:int = 1;
-			var activeActorCount:int = 0;
-			var end:Number = base+count;
 			var ctx:Context3D = _context;
-			var vertexOffset:Number = 0;
 			
-			if(_vertexBuffers[nextBuffer].dirty == true)
+			while(next < end && (sources[next].highKey & mask) == keyValue)
 			{
-				for(var i:int = base;i<end;i++)
-				{	
-					var xForm:Vector.<Number>= sources[i].getBlitXForm();
-					vertexVector[vertexOffset] = xForm[2];
-					vertexVector[vertexOffset+1] = xForm[6];
-					vertexVector[vertexOffset+2] = xForm[3];
-	
-					vertexVector[vertexOffset+3] = xForm[0] + xForm[2];
-					vertexVector[vertexOffset+4] = xForm[4] + xForm[6];
-					vertexVector[vertexOffset+5] = xForm[3];
-	
-					vertexVector[vertexOffset+6] = xForm[1] + xForm[2];
-					vertexVector[vertexOffset+7] = xForm[5] + xForm[6];
-					vertexVector[vertexOffset+8] = xForm[3];
-	
-					vertexVector[vertexOffset+9] = xForm[0] + xForm[1] + xForm[2];
-					vertexVector[vertexOffset+10] = xForm[4] + xForm[5] + xForm[6];
-					vertexVector[vertexOffset+11] = xForm[3];
-					
-	
+				var actor:Actor = sources[next].data as Actor;
+				var xForm:Vector.<Number>= actor.getBlitXForm();
+				
+				var xf56:Number = xForm[5] + xForm[6];
+				var xf12:Number = xForm[1] + xForm[2];
+				vertexVector[vertexOffset] = xForm[2];
+				vertexVector[vertexOffset+1] = xForm[6];
+				vertexVector[vertexOffset+2] = xForm[3];
+				
+				vertexVector[vertexOffset+3] = xForm[0] + xForm[2];
+				vertexVector[vertexOffset+4] = xForm[4] + xForm[6];
+				vertexVector[vertexOffset+5] = xForm[3];
+				
+				vertexVector[vertexOffset+6] = xf12;
+				vertexVector[vertexOffset+7] = xf56;
+				vertexVector[vertexOffset+8] = xForm[3];
+				
+				vertexVector[vertexOffset+9] = xForm[0] + xf12;
+				vertexVector[vertexOffset+10] = xForm[4] + xf56;
+				vertexVector[vertexOffset+11] = xForm[3];
+				
+				if(vertexBuffer.uvDirty)
+				{
 					uvVector[vertexOffset] = xForm[10];
 					uvVector[vertexOffset+1] = xForm[11];
-	
+					uvVector[vertexOffset+2] = xForm[7];
+					
 					uvVector[vertexOffset+3] = xForm[8] + xForm[10];
 					uvVector[vertexOffset+4] = xForm[11];
-	
+					uvVector[vertexOffset+5] = xForm[7];
+					
 					uvVector[vertexOffset+6] = xForm[10];
 					uvVector[vertexOffset+7] = xForm[9] + xForm[11];
+					uvVector[vertexOffset+8] = xForm[7];
 					
 					uvVector[vertexOffset+9] = xForm[8] + xForm[10];
 					uvVector[vertexOffset+10] = xForm[9] + xForm[11];
-	
-					vertexOffset += VERTEX_LENGTH*4;
+					uvVector[vertexOffset+11] = xForm[7];
 				}
 				
-				vertexBuffer.buffer.uploadFromVector(vertexVector,0,count*4);
-				vertexBuffer.uvBuffer.uploadFromVector(uvVector,0,count*4);
+				vertexOffset += VERTEX_LENGTH*4;
+
+				bufferCount++;
+				if(bufferCount == MAX_BATCH_SIZE)
+				{
+					vertexBuffer.buffer.uploadFromVector(vertexVector,0,bufferCount*4);
+					if(vertexBuffer.uvDirty)
+					{
+						vertexBuffer.uvBuffer.uploadFromVector(uvVector,0,bufferCount*4);
+						//vertexBuffer.uvDirty = false;
+					}
+					_context.setVertexBufferAt( 0, vertexBuffer.buffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
+					_context.setVertexBufferAt( 1, vertexBuffer.uvBuffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
+					_context.drawTriangles( _indexBuffer,0,2*bufferCount);
+					
+					nextBuffer = (nextBuffer + 1) % NUM_BUFFERS;
+					bufferCount = 0;
+					vertexOffset = 0;
+					vertexBuffer = _vertexBuffers[nextBuffer];
+				}
+				
+				next++;
 			}
-			_context.setVertexBufferAt( 0, vertexBuffer.buffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
-			_context.setVertexBufferAt( 1, vertexBuffer.uvBuffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
-			_context.drawTriangles( _indexBuffer,0,2*count);
-//			vertexBuffer.dirty = false;
-			return 0;
-		}		
-	}
+
+			if(bufferCount > 0)
+			{
+				vertexBuffer.buffer.uploadFromVector(vertexVector,0,bufferCount*4);
+				if(vertexBuffer.uvDirty)
+				{
+					vertexBuffer.uvBuffer.uploadFromVector(uvVector,0,bufferCount*4);
+					//vertexBuffer.uvDirty = false;
+				}
+				_context.setVertexBufferAt( 0, vertexBuffer.buffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
+				_context.setVertexBufferAt( 1, vertexBuffer.uvBuffer, 0, Context3DVertexBufferFormat.FLOAT_3 );
+				_context.drawTriangles( _indexBuffer,0,2*bufferCount);				
+				nextBuffer = (nextBuffer + 1) % NUM_BUFFERS;
+			}
+			return next;
+		}
+			}
 }
 import flash.display3D.VertexBuffer3D;
 

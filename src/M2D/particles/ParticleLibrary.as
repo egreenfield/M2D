@@ -30,6 +30,7 @@
 {
 	import M2D.core.IBlitOp;
 	import M2D.worlds.IRenderJob;
+	import M2D.worlds.RenderTask;
 	import M2D.worlds.WorldBase;
 	
 	import flash.display3D.Context3D;
@@ -39,6 +40,7 @@
 	public class ParticleLibrary implements IRenderJob
 	{
 		private var _world:WorldBase;
+		private var _renderID:uint;
 		public function set world(w:WorldBase):void
 		{
 			this._world = w;
@@ -47,13 +49,17 @@
 		{
 			return _world;
 		}
+		public function set renderID(value:uint):void
+		{
+			_renderID = value;
+		}
+		public function get renderID():uint
+		{
+			return _renderID;
+		}
 		public function ParticleLibrary()
 		{
 		}
-		
-		private var _numDrawTriangleCalls:int = 0;		
-		private var _timeInDrawTriangles:int = 0;		
-		private var blitOps:Vector.<IBlitOp> = new Vector.<IBlitOp>();
 		
 		private var InstanceMap:Dictionary = new Dictionary(true);
 		
@@ -83,57 +89,16 @@
 			{
 			}
 			list.activeInstancesDirty = true;
+			world.addRenderData(instance.task);			
 		}				
 		
-		public function get numDrawTrianglesCallsPerFrame():int { return _numDrawTriangleCalls;}
-		public function get timeInDrawTriangles():int {return _timeInDrawTriangles;}
-		
-		
-		
-		public function render():void
+		public function render(renderData:Vector.<RenderTask>,start:uint):uint
 		{
-			for(var aSymbol:* in InstanceMap)
-			{
-				var list:ParticleInstanceList = InstanceMap[aSymbol];
-				renderInstances(aSymbol,list);
-			}
+			var pi:ParticleInstance = renderData[start].data as ParticleInstance;
+			pi.render();
+			return start+1;
 		}
-		
-		private function renderInstances(sym:ParticleSymbol,list:ParticleInstanceList):void
-		{
-			var context3D:Context3D = world.context3D;
-			var blitOps:Vector.<ParticleInstance> = list.blitOps;
-			
-			var len:int = blitOps.length;
-			if(list.activeInstancesDirty)
-			{
-				var moveDest:int = 0;
-				for(var i:int = 0;i<len;i++)
-				{
-					var pi:ParticleInstance = blitOps[i] as ParticleInstance;
-					if(pi.active == false)
-						continue;
-					
-					pi.render();
-					blitOps[moveDest] = pi;
-					moveDest++;
-				}
-				if(moveDest < len)
-				{
-					blitOps.splice(moveDest,len-moveDest);
-				}
-				list.blitOps = blitOps.sort(compareDepth);
-				list.activeInstancesDirty = false;
-			}
-			else
-			{
-				for(i = 0;i<len;i++)
-				{
-					pi = blitOps[i] as ParticleInstance;
-					pi.render();
-				}				
-			}
-		}
+
 		
 		private function compareDepth(lhs:ParticleInstance,rhs:ParticleInstance):int
 		{

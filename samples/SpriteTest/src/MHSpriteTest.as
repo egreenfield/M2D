@@ -119,7 +119,7 @@
 				var s:Number = 1;//Math.random() * 2 + .75;
 				actor.scaleX = Math.max(.1,cellWidth/actor.width * s);
 				actor.scaleY = Math.max(.1,cellHeight/actor.height * s);
-				actor.depth = Math.random() * -1;
+				actor.depth = Math.random() *3000;
 				var ca:CirclingActor = new CirclingActor(actor);
 				ca.centerX = Math.random() * viewWidth;//cellWidth * (i + .5);
 				ca.centerY = Math.random() * viewHeight;//cellHeight * (j +.5);
@@ -166,7 +166,7 @@
 		public function tick():void
 		{
 //			actor.x = 427+ Math.cos(getTimer()/1000*Math.PI*2)*50;
-	//		actor.y = 240 + + Math.sin(getTimer()/1000*Math.PI*2)*50
+//		actor.y = 240 + + Math.sin(getTimer()/1000*Math.PI*2)*50
 
 			if(doneOnce == false)
 			{
@@ -181,8 +181,8 @@
 			mpf.sample(delta);
 			
 			previousTime = t;
-			var drawTriTime:Number = (world is World)? World(world).timeInDrawTriangles:0;
-			var numCalls:Number = (world is World)? World(world).numDrawTrianglesCallsPerFrame:0;
+			var drawTriTime:Number = 0;//(world is World)? World(world).timeInDrawTriangles:0;
+			var numCalls:Number = 0;//(world is World)? World(world).numDrawTrianglesCallsPerFrame:0;
 			reportTime(clock.processingTime,drawTriTime,numCalls);
 		}
 		

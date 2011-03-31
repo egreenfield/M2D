@@ -36,13 +36,21 @@
 	{
 		public function Instance()
 		{
+			task = new RenderTask();
+			task.data = this;
 		}
+		
 		protected var _x:Number = 0;
 		protected var _y:Number = 0;
 		public var scaleX:Number = 1;
 		public var scaleY:Number = 1;
-		public var depth:Number = 0;
+		private var _depth:Number = 0;
 		public var _rotation:Number = 0;
+
+		public var task:RenderTask;
+
+		public function set depth(v:Number):void {_depth= v;updateKey();}
+		public function get depth():Number { return _depth;}
 		
 		public var regX:Number;
 		public var regY:Number;
@@ -120,6 +128,9 @@
 				blitXFormDirty = false;
 			}
 			return blitXForm;
+		}		
+		protected function updateKey():void
+		{
 		}		
 	}
 }

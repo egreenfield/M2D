@@ -34,6 +34,8 @@
 	public class AssetMgr
 	{
 		public var world:World;
+		private var nextTextureID:uint = 0;
+		
 		public function AssetMgr(world:World)
 		{
 			this.world = world;
@@ -42,6 +44,7 @@
 		public function createTextureFromDisplayObject(d:DisplayObject):BatchTexture
 		{
 			var tx:BatchTexture = BatchTexture.createFromDisplayObject(d);
+			tx.textureID = nextTextureID++;
 			tx.assetMgr = this;
 			return tx;
 		}
