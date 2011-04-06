@@ -26,7 +26,9 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package M2D.sprites
+*/
+
+package M2D.sprites
 {
 	import M2D.core.IBlitOp;
 	import M2D.worlds.RenderTask;
@@ -152,8 +154,6 @@
 					s = sinR;
 				}
 			
-				
-				
 				var csy:Number = c*scaleY;
 				var csx:Number = c*scaleX;
 				
@@ -165,13 +165,11 @@
 				xf[0] = csx*width;
 				xf[1] = ssy*height;
 				xf[2] = csx*nrx + ssy*nry + x;			
-				//xf[3] = -depth/3000; // depth 
-				
+
 				xf[4] = nssx*width;
 				xf[5] = csy*height;
 				xf[6] = nssx*nrx + csy*nry + y;			
-				//xf[7] = alpha;
-				
+
 				_prevX = x;
 				_prevY = y;
 				_prevRotation = rotation;

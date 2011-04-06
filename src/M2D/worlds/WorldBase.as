@@ -26,7 +26,9 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package M2D.worlds
+*/
+
+package M2D.worlds
 {
 	import M2D.core.GContext;
 	import M2D.time.Clock;
@@ -56,24 +58,21 @@
 		public var sortedRenderTasks:Vector.<RenderTask>;
 		private var _clock:Clock;
 		
-		public function WorldBase()
-		{
-		}
-
 		private var renderMode:String = Context3DRenderMode.AUTO;		
 		public var context3D:Context3D;
 		public var gContext:GContext = new GContext();
 		
 		public var cameraMatrix:Matrix3D;
-		
-		
-		
+
 		private var stage3D:Stage3D;
 		public var antiAliasDepth:int = 2;
 		private var cameraDirty:Boolean = true;
 		
 		private var jobs:Vector.<IRenderJob> = new Vector.<IRenderJob>();
 		
+		public function WorldBase()
+		{
+		}
 		
 		public function initContext(stage:Stage,container:DisplayObjectContainer,slot:int,bounds:Rectangle):void
 		{
@@ -107,25 +106,25 @@
 		
 		private function initContext3D():void
 		{
-			context3D.enableErrorChecking = false;
+			// Keep enabled for now since the public incubator release has
+			// issues with rendering when set to false.
+			context3D.enableErrorChecking = true;
+			
 			context3D.configureBackBuffer( bounds.width, bounds.height, antiAliasDepth, true); // fixed size
-			context3D.setBlendFactors(Context3DBlendFactor.SOURCE_ALPHA,Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
+			context3D.setBlendFactors(Context3DBlendFactor.ONE, Context3DBlendFactor.ONE_MINUS_SOURCE_ALPHA);
 			context3D.setDepthTest(true,Context3DCompareMode.GREATER_EQUAL);
 			gContext.init(context3D);
 			if(readyCallback != null)
 				readyCallback(this);
 		}
 		
-		
-		
 		private function buildCameraMatrix():void
 		{
 			if(cameraDirty == false)
 				return;
-			//trace("Build Camera");
 			cameraMatrix = new Matrix3D();
 			cameraMatrix.appendScale(2/bounds.width,-2/bounds.height,1/3000);
-			cameraMatrix.appendTranslation(-1,1,0);//(bounds.left-stage3D.viewPort.width/2),0,0);//-(bounds.top - stage3D.viewPort.height/2),0);
+			cameraMatrix.appendTranslation(-1,1,0);
 			
 			gContext.cameraMatrix = cameraMatrix;
 			cameraDirty = false;
@@ -153,7 +152,6 @@
 				buildCameraMatrix();
 			}
 			
-			
 			var nextGroup:int = 0;
 			
 			
@@ -162,13 +160,10 @@
 			var len:uint = sortedRenderTasks.length;
 			
 			var renderIndex:uint = 0;
-//			var renderTaskCount:Number = 0;
-			//trace("*** rendering");
-			while(renderIndex<len)			{
+			
+			while(renderIndex<len)		
 				renderIndex = sortedRenderTasks[renderIndex].job.render(sortedRenderTasks,renderIndex);
-//				renderTaskCount++;
-			}
-			//race("** rendered ",renderTaskCount,"Batches");
+
 			context3D.present();
 		}
 		

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="MHPTest.as" projectUUID="037d9d50-a249-4fd1-85b4-b11535ab0375" version="10">
+<actionScriptProperties analytics="false" mainApplicationPath="MovieClipTest.as" projectUUID="7fa69fe9-1b47-44c5-b5b9-4bdb42c5329e" version="10">
   <compiler additionalCompilerArguments="-locale en_US -swf-version=13" autoRSLOrdering="true" copyDependentFiles="true" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="0.0.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="0">
@@ -47,7 +47,7 @@
     <sourceAttachmentPath/>
   </compiler>
   <applications>
-    <application path="MHPTest.as"/>
+    <application path="MovieClipTest.as"/>
   </applications>
   <modules/>
   <buildCSSFiles/>

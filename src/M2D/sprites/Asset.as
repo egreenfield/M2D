@@ -26,15 +26,13 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package M2D.sprites
+*/
+package M2D.sprites
 {
 	import M2D.worlds.BatchTexture;
-
+	
 	public class Asset
 	{
-		public function Asset()
-		{
-		}
 		public var width:Number;
 		public var height:Number;		
 		public var texture:BatchTexture;
@@ -46,8 +44,12 @@
 		public var offsetLeft:Number = 0;
 		public var offsetTop:Number = 0;
 		public var hasAlphaChannel:Boolean = false;
+		protected var _frameCount:uint;
 		
-			
+		public function Asset()
+		{
+		}
+		
 		public function createActor():Actor
 		{
 			var newActor:Actor = new Actor();
@@ -55,5 +57,16 @@
 			newActor.active = true;
 			return newActor;
 		}		
+		
+		public function get frameCount():uint
+		{
+			return isNaN(_frameCount) ? 
+				cellColumnCount * cellRowCount : _frameCount;
+		}
+		
+		public function set frameCount(value:uint):void
+		{
+			_frameCount = value;
+		}
 	}
 }

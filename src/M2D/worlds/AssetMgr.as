@@ -26,10 +26,15 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package M2D.worlds
+*/
+
+package M2D.worlds
 {
+	import M2D.sprites.Asset;
 	
 	import flash.display.DisplayObject;
+	import flash.display.Sprite;
+	import flash.geom.Rectangle;
 
 	public class AssetMgr
 	{
@@ -47,6 +52,33 @@
 			tx.textureID = nextTextureID++;
 			tx.assetMgr = this;
 			return tx;
+		}
+		
+		public function createAssetFromDisplayObject(d:DisplayObject, cellRowCount:uint = 1, cellColumnCount:uint = 1, srcRect:Rectangle = null):Asset
+		{
+			var tx:BatchTexture = createTextureFromDisplayObject(d);
+			var asset:Asset = world.library.createAsset(tx);
+			asset.cellColumnCount = cellColumnCount;
+			asset.cellRowCount = cellRowCount;
+			return asset;
+		}
+		
+		public function createTextureFromAnimatedDisplayObject(d:Sprite, padding:uint=1, scaleX:Number=1, scaleY:Number=1):BatchTexture
+		{
+			var tx:BatchTexture = BatchTexture.createFromAnimatedDisplayObject(d, padding, scaleX, scaleY);
+			tx.textureID = nextTextureID++;
+			tx.assetMgr = this;
+			return tx;
+		}
+		
+		public function createAssetFromAnimatedDisplayObject(d:Sprite, padding:uint=1, scaleX:Number=1, scaleY:Number=1):Asset
+		{
+			var tx:BatchTexture = createTextureFromAnimatedDisplayObject(d, padding, scaleX, scaleY);
+			var asset:Asset = world.library.createAsset(tx);
+			asset.cellColumnCount = tx.generatedColCount;
+			asset.cellRowCount = tx.generatedRowCount;
+			asset.frameCount = tx.generatedFrameCount;
+			return asset;
 		}
 	}
 }

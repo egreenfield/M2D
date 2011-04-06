@@ -45,8 +45,6 @@
 	import flash.geom.Matrix3D;
 	import flash.geom.Rectangle;
 	import flash.utils.getTimer;
-	
-	import spark.components.DataRenderer;
 
 	public class GContext
 	{
@@ -64,15 +62,13 @@
 		private var nextBuffer:int = 0;
 		private var _shaderProgram:Program3D;		
 		private var _buffersDirty:Boolean = true;
-		//		private var _numDrawTriangleCalls:int = 0;		
-		//		private var _timeInDrawTriangles:int = 0;
 		
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 // constants
 //----------------------------------------------------------------------------------------------------------------------------------------------------------
 		
 		private static const NUM_SHARED_VERTEX_CONSTANTS:int = 5;
-		private static const MAX_BATCH_SIZE:int = 1500;//Math.floor((128-NUM_SHARED_VERTEX_CONTSTANTS)/NUM_CONSTANTS_PER_SPRITE);
+		private static const MAX_BATCH_SIZE:int = 1500;
 		private static const VERTEX_COUNT:Number = 4*MAX_BATCH_SIZE;
 		private static const INDEX_COUNT:Number = 6*MAX_BATCH_SIZE;
 		private static const VERTEX_LENGTH:Number = 3;
@@ -159,7 +155,6 @@
 			vertexShaderAssembler.assemble( Context3DProgramType.VERTEX, DEFAULT_VERTEX_SHADER );
 			
 			var fragmentShaderAssembler:AGALMiniAssembler = new AGALMiniAssembler(); 
-			//			fragmentShaderAssembler.assemble( Context3DProgramType.FRAGMENT, "mov oc, v0" /* copy color */ );
 			fragmentShaderAssembler.assemble( Context3DProgramType.FRAGMENT,
 				ALPHA_TEXTURE_SHADER
 			);
