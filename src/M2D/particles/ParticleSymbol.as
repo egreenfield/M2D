@@ -49,7 +49,7 @@
 		{
 		}
 		
-		internal static const NUM_PARAMS_PER_PARTICLE:Number = 5;
+		internal static const NUM_PARAMS_PER_PARTICLE:Number = 6;
 		internal static const NUM_VERTICES_PER_PARTICLE:Number = 4;
 		internal static const NUM_PARAM_FLOATS_PER_PARTICLE:Number =NUM_VERTICES_PER_PARTICLE*NUM_PARAMS_PER_PARTICLE; 
 		
@@ -83,29 +83,52 @@
 		
 		private static const DEFAULT_VERTEX_SHADER:String =
 			"mov vt0, va0 \n" +		// load vertex
-			"add vt0.xy, vt0.xy,va4.xy\n" +	// add in x0,y0
-			"cos vt1.x, va3.x\n" + 	// put cos/sin of angle into vt1
-			"sin vt1.y, va3.x\n" +
-			"mul vt1.x, vt1.x, va3.y\n" + // multiply by velocity
-			"mul vt1.y, vt1.y, va3.y\n" + 
-			"sub vt2.x, vc8.z, va2.x\n" +	// get the relative time offset, in milliseconds
-			"mov v1, vt0\n" +				// send time to fragment shader.  This is a hack for now.
-			"mov v1.x, vt2.x\n" +
-			"mul vt1.x, vt1.x, vt2.x\n" +	// now multiple x velocity by time
-			"mul vt1.y, vt1.y, vt2.x\n" +	// now multiple y velocity by time
-			"add vt0.xy, vt0.xy,vt1.xy\n" +	// now add velocity to base position
+			"sub vt5.z, vc8.z, va2.x\n" +	// get the relative time offset, in milliseconds
+			"mul vt3.z, vt5.z, va3.z\n" + 	// get total rotation
+			"cos vt5.x, vt3.z\n"		+	// and cos(rotation)
+			"sin vt5.y, vt3.z\n"		+ 	// and sin(rotation)
+
+//			"mov vt0.x,vc9.z\n" +
+//			"mov vt0.y,vc9.x\n" +
+			"mov vt0.x, vt5.x\n" +	// now build rotation into line 1 of matrix
+			"mov vt0.y, vt5.y\n" +	//
+			"neg vt0.y, vt0.y\n" +
+			"mov vt0.z, va4.x\n" +	// add x translation into line 1 of matrix
+
+//			"mov vt1.x,vc9.x\n" +
+//			"mov vt1.y,vc9.z\n" +
+			"mov vt1.x, vt5.y\n" +	// now line 2 of build rotation matrix
+			"mov vt1.y, vt5.x\n" +	//
+			"mov vt1.z, va4.y\n" +	// add y translation into line 1 of matrix
+
+			"mov vt2.xyz, vc9.xyz\n" +	// now line 3 of the matrix
+										// now vt0-vt3 should be a 3x3 matrix 
+			"cos vt4.x, va3.x\n" + 	// put cos/sin of angle into vt1
+			"sin vt4.y, va3.x\n" +
+			"mul vt4.x, vt4.x, va3.y\n" + // multiply by velocity
+			"mul vt4.y, vt4.y, va3.y\n" + 
+			"mul vt4.x, vt4.x, vt5.z\n" +	// now multiple x velocity by time
+			"mul vt4.y, vt4.y, vt5.z\n" +	// now multiple y velocity by time
+			"add vt0.z, vt0.z,vt4.x\n" +	// now add x velocity to base position
+			"add vt1.z, vt1.z,vt4.y\n" +	// now add y velocity to base position
+
+			"mov vt4,va0\n"+
+			"mov vt4.z,vc9.z\n"+
+			"m33 vt0.xyz, vt4, vt0\n"		+	// now transform from particle space to emitter space
 			
-			"mul vt3.y, vt2.x, vt2.x\n" +	// load t^2
+			"m44 vt4, vt0 vc0		\n" +	// 4x4 matrix transform from emitter space to world space
+			
+			"mul vt3.y, vt5.z, vt5.z\n" +	// load t^2
 			"mul vt3.x, vt3.y, vc8.x\n" + 	// multiply by acceleration
 			"mul vt3.y, vt3.y, vc8.y\n" + 	// multiply by acceleration
 			
-			"m44 vt4, vt0, vc0		\n" +	// 4x4 matrix transform from stream 0 to output clipspace
-
 			"add vt4.y, vt4.y, vt3.y\n" + // now add in accel in global space.
 			"add vt4.x, vt4.x, vt3.x\n" + // now add in accel in global space.
 			
-			"m44 op, vt4, vc4		\n" +	// 4x4 matrix transform from stream 0 to output clipspace
+			"m44 op, vt4, vc4		\n" +	// 4x4 matrix transform from world space to output clipspace
 			"mov v0, va1		\n" +	// copy fragment straight through
+			"mov v1, va0\n" +				// send time to fragment shader.  This is a hack for now.
+			"mov v1.x, vt5.z\n" +
 			"";
 		
 		private static const ALPHA_TEXTURE_SHADER:String =
@@ -189,8 +212,6 @@
 			
 			for(var i:int = 0;i<maxParticlesPerDrawCall;i++) {
 				var vertexOffset:Number = i*4;
-				var r:Number = Math.random()*2*Math.PI;
-				var v:Number = (Math.random() * 200 + 30)/1000;
 				
 				vertexVector.push(
 					left,top,		0,0,	
@@ -269,7 +290,8 @@
 				var particleIdx:Number = firstIndex + i + buffer.firstIndexInParams;
 				var idx:Number = (firstPosition+i)*NUM_PARAM_FLOATS_PER_PARTICLE;
 				var r:Number = (Math.random()*.5+.5-.25)*-Math.PI;//(birthTime%1000)/1000*2*Math.PI * (Math.random() * .4 + .8);
-				var v:Number = (Math.random() * 100 + 30)/1000;
+				var v:Number = (Math.random() * 400 + 100)/1000;
+				var rv:Number = (Math.PI*2)  / 1000;
 				var birthTime:Number = birthDelay * (particleIdx);
 				if(birthZone != null)
 				{
@@ -286,6 +308,7 @@
 					buffer.paramVector[idx++] = l.y;
 					buffer.paramVector[idx++] = r; 
 					buffer.paramVector[idx++] = v;
+					buffer.paramVector[idx++] = rv;
 				}
 			}
 		}

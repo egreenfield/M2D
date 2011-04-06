@@ -50,7 +50,7 @@
 		
 		
 		private static var tmpMatrix:Matrix3D = new Matrix3D();
-		private static var CONSTANTS:Vector.<Number> = Vector.<Number> ( [0,0,0,.5] ); 
+		private static var CONSTANTS:Vector.<Number> = Vector.<Number> ( [0,0,0,.5,0,0,1,0] ); 
 		
 		private var _clock:Clock;
 		
@@ -137,10 +137,10 @@
 			ctx.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, 0, tmpMatrix, true );				
 			ctx.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, 4, world.cameraMatrix, true );				
 			
-			CONSTANTS[0] = symbol.gravityX/2; //- firstLivingBirthTime;
-			CONSTANTS[1] = symbol.gravityY/2; //- firstLivingBirthTime;
-			CONSTANTS[2] = delta; //- firstLivingBirthTime;
-			CONSTANTS[3] = symbol.lifespan; //- firstLivingBirthTime;
+			CONSTANTS[0] = symbol.gravityX/2; //horizontal acceleration
+			CONSTANTS[1] = symbol.gravityY/2; //vertical acceleration;
+			CONSTANTS[2] = delta; //time since start (of buffer, not necessarily emitter start);
+			CONSTANTS[3] = symbol.lifespan; //how long a particle should stay alive;
 	
 			
 			
@@ -159,7 +159,7 @@
 				CONSTANTS[2] = delta - range.timeOffsetOfBuffer;
 					
 				ctx.setVertexBufferAt( 2, range.params.paramBuffer, 0, Context3DVertexBufferFormat.FLOAT_1 );			
-				ctx.setVertexBufferAt( 3, range.params.paramBuffer, 3, Context3DVertexBufferFormat.FLOAT_2 );			
+				ctx.setVertexBufferAt( 3, range.params.paramBuffer, 3, Context3DVertexBufferFormat.FLOAT_3 );			
 				ctx.setVertexBufferAt( 4, range.params.paramBuffer, 1, Context3DVertexBufferFormat.FLOAT_2 );			
 
 				ctx.setProgramConstantsFromVector( Context3DProgramType.VERTEX, 8, CONSTANTS);

@@ -103,12 +103,12 @@
 			clock.addListener(world);
 			world.initContext(stage,this,0,new Rectangle(0,0,viewWidth,viewHeight));
 			
-			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new air());
+			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new smiley());
 			particleSymbol = world.particleLibrary.createSymbol();
 			
 			
 			particleSymbol.texture = kTexture;
-			particleSymbol.birthDelay = .02;
+			particleSymbol.birthDelay = 1;
 			particleSymbol.lifespan = 2000;
 			particleSymbol.generateInWorldSpace = true;
 			
