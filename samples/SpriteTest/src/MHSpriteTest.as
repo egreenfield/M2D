@@ -29,12 +29,8 @@
 */package
 {
 	
-	import M2D.animation.CellAnimation;
-	import M2D.sprites.Actor;
-	import M2D.sprites.Asset;
 	import M2D.time.Clock;
 	import M2D.time.IClockListener;
-	import M2D.worlds.BatchTexture;
 	import M2D.worlds.World;
 	
 	import flash.display.Sprite;
@@ -45,111 +41,43 @@
 	import flash.text.TextFieldAutoSize;
 	import flash.utils.getTimer;
 	
-	import mx.utils.NameUtil;
-	
-	[SWF(width="1200", height="1050", frameRate="60", backgroundColor="0xFFFFFF")]
+	[SWF(width="1200", height="1050", frameRate="60", backgroundColor="0x00AA00")]
 	public class MHSpriteTest extends Sprite implements IClockListener
 	{
-		private var actor:Actor;
-		public var tf:TextField;
-		public static const smoothWindow:int = 100;
-		public static const actorWidth:int = 40;
-		public static const actorHeight:int = 40;
-
-		private var world:World;
-
-		
-		[Embed(source="assets/smiley.png")]
-		public var smiley:Class;
-		
-		[Embed(source="assets/smileyRect.png")]
-		public var smileyRect:Class;
-
-		[Embed(source="assets/flash.png")]
-		public var flashBubble:Class;
-		
-		[Embed(source="assets/knightRun.png")]
-		public var knight:Class;
-
-		
-		public var viewWidth:Number = 1200;
-		public var viewHeight:Number = 1050;
+		public static const ACTOR_COUNT:int = 2000;
+		public static var world:World;
+		public static var viewWidth:Number = 1200;
+		public static var viewHeight:Number = 1050;
+		private var actors:Vector.<Knight> = new Vector.<Knight>();
 		
 		public function MHSpriteTest()
 		{
 			stage.scaleMode = StageScaleMode.NO_SCALE;
 			stage.align = StageAlign.TOP_LEFT;
+
+			world = new World();
+			world.backgroundColor = 0x00CC00;
+			world.initContext(stage,this,0,new Rectangle(0,0,viewWidth,viewHeight));
+			
 			_clock = new Clock(60);
 			_clock.addListener(this);
-			
-			
-			world = new World();
-			world.backgroundColor = 0xFFFFFF;
 			clock.addListener(world);
-			world.initContext(stage,this,0,new Rectangle(0,0,viewWidth,viewHeight));
-	
-			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new knight());
-			var knightAsset:Asset = world.library.createAsset(kTexture);
-			
-			knightAsset.cellColumnCount = 10;
-			knightAsset.cellRowCount = 8;
-			
-			var assets:Array = [knightAsset];
-			var animations:Array = [new CellAnimation(clock,20,10)];
-			animations[0].mpf=1000/20;
-			
-			var spinner:int = 0;
-			
-			var cellWidth:Number = viewWidth/actorWidth;
-			var cellHeight:Number = viewHeight/actorHeight;
-			
-			var anim:CellAnimation;
-//			for(var j:int = 0;j<actorHeight;j++) {
-			for(var i:int = 0;i<7000;i++) {
-				actor = assets[spinner].createActor();
-				anim= (animations[spinner] == null)?null:animations[spinner].clone();
-				if(anim != null)
-				{
-					anim.actor = actor;
-					anim.base = Math.floor(Math.random()*7)*10;
-					anim.currentFrame = Math.random()*anim.length + anim.base;
-					anim.start();
-				}
-				spinner = (spinner + 1) % assets.length;
-				var s:Number = 1;//Math.random() * 2 + .75;
-				actor.scaleX = Math.max(.1,cellWidth/actor.width * s);
-				actor.scaleY = Math.max(.1,cellHeight/actor.height * s);
-				actor.depth = Math.random() *3000;
-				var ca:CirclingActor = new CirclingActor(actor);
-				ca.centerX = Math.random() * viewWidth;//cellWidth * (i + .5);
-				ca.centerY = Math.random() * viewHeight;//cellHeight * (j +.5);
-				ca.radius = Math.random() * cellWidth * .3;
-				ca.speed = Math.random() * .4 + .8;
-				circles.push(ca);
-//				}
-			}
-			
-		
-			
-			tf = new TextField();
-//			tf.width = viewWidth;
-//			tf.height = viewHeight;
-			tf.autoSize = TextFieldAutoSize.LEFT;
-			tf.width = 300;
-			tf.background = true;
-			tf.border = true;
-			addChild(tf);
-			
-			_clock.start();
-			
-		}
-		private var circles:Vector.<CirclingActor> = new Vector.<CirclingActor>();
-		public var previousTime:Number = 0;
-		public var mpf:Smoother = new Smoother(smoothWindow);
-		public var fps:Smoother = new Smoother(smoothWindow);
-		public var asProcessing:Smoother = new Smoother(smoothWindow);
-		public var drawTri:Smoother = new Smoother(smoothWindow);
 
+			createActors();
+			createStats();
+
+			_clock.start();
+		}
+		
+		private function createActors():void
+		{
+			for(var i:int = 0; i < ACTOR_COUNT; i++) 
+			{
+				var instance:Knight = new Knight(clock);
+				actors.push(instance);
+			}
+		}
+				
 		private var _clock:Clock;
 		
 		public function get clock():Clock
@@ -161,51 +89,59 @@
 		{
 			_clock = value;
 		}
-		
-		public var doneOnce:Boolean = false;
+
 		public function tick():void
 		{
-//			actor.x = 427+ Math.cos(getTimer()/1000*Math.PI*2)*50;
-//		actor.y = 240 + + Math.sin(getTimer()/1000*Math.PI*2)*50
-
-			if(doneOnce == false)
-			{
-				for(var i:int = 0;i<circles.length;i++) {
-				circles[i].update();
-				}
-				doneOnce = true;
-			}
-			var t:Number = clock.currentTime;
-			var delta:Number = t - previousTime;
-			fps.sample((1/delta)*1000);
-			mpf.sample(delta);
-			
-			previousTime = t;
-			var drawTriTime:Number = 0;//(world is World)? World(world).timeInDrawTriangles:0;
-			var numCalls:Number = 0;//(world is World)? World(world).numDrawTrianglesCallsPerFrame:0;
-			reportTime(clock.processingTime,drawTriTime,numCalls);
+			var length:int = actors.length;
+			for(var i:int = 0; i < length; i++) 
+				actors[i].update();
+			updateStats();
 		}
 		
+		// Stats Housekeeping
+		
+		public static const smoothWindow:int = 100;
+		private var tf:TextField;
+		private var previousTime:Number = 0;
+		
+		private var mpf:Smoother = new Smoother(smoothWindow);
+		private var fps:Smoother = new Smoother(smoothWindow);
+		private var asProcessing:Smoother = new Smoother(smoothWindow);
 		private var lastUpdate:Number = getTimer();
-		public function reportTime(asProcessingTime:Number,drawTriTime:Number,batchCount:Number):void
+		
+		private function createStats():void
+		{
+			tf = new TextField();
+			tf.autoSize = TextFieldAutoSize.LEFT;
+			tf.background = true;
+			tf.border = true;
+			addChild(tf);
+		}
+		
+		private function updateStats():void
+		{
+			var t:Number = clock.currentTime;
+			var delta:Number = t - previousTime;
+			fps.sample((1/delta) * 1000);
+			mpf.sample(delta);
+			previousTime = t;
+			reportTime(clock.processingTime);
+		}
+		
+		private function reportTime(asProcessingTime:Number):void
 		{
 			asProcessing.sample(asProcessingTime);
-			drawTri.sample(drawTriTime);
+
 			var t:Number = getTimer();
-			if(t-lastUpdate > 1000)
-				lastUpdate= t;
+			if( t - lastUpdate > 1000)
+				lastUpdate = t;
 			else
 				return;
 			tf.text = 
-				"\nnumber of actors: " + actorWidth*actorHeight + 
-				"\nnumber of draw calls: " + batchCount + 
+				"number of actors: " + ACTOR_COUNT + 
 				"\nfps: " + fps.average + 
 				"\nmilli/frame: " + mpf.average + 
 				"\ntotal AS processing: " + asProcessing.average + 
-				"\ntotal AS processing (without draw calls): " + (asProcessing.average - drawTri.average) + 
-				"\nAS processing/draw call:" + (asProcessing.average - drawTri.average)/batchCount +
-				"\ntotal ms spent in DrawTriangles: " + drawTri.average +
-				"\nms/drawTriangles call: " + drawTri.average/batchCount +
 				"";
 		}
 	}

@@ -32,6 +32,8 @@ package M2D.animation
 	import M2D.sprites.Actor;
 	import M2D.time.Clock;
 	import M2D.time.IClockListener;
+	
+	import flash.display.FrameLabel;
 
 	public class CellAnimation implements IClockListener
 	{
@@ -49,7 +51,7 @@ package M2D.animation
 			_actor = actor;
 			_base = base;
 			_length = length;
-			_currentFrame = Math.max(Math.min(_currentFrame,(_base+_length-1)),_base);
+			_currentFrame = _base;
 		}
 		
 		public function get currentFrame():int
@@ -80,6 +82,8 @@ package M2D.animation
 		public function set base(value:int):void
 		{
 			_base = value;
+			if (_currentFrame < value)
+				_currentFrame = value;
 		}
 
 		public function clone():CellAnimation
@@ -87,7 +91,6 @@ package M2D.animation
 			var c:CellAnimation = new CellAnimation(_clock,_base,_length,_actor);
 			c._mpf = _mpf;
 			c._currentFrame = _currentFrame;
-			
 			return c;
 		}
 		
@@ -124,15 +127,20 @@ package M2D.animation
 		public function start():void
 		{
 			_lastFrameTime = _clock.currentTime;
-			_currentFrame = _actor.cell;
+			_actor.cell = _currentFrame;
 			_clock.addListener(this);
 		}
+		
 		public function tick():void
 		{
 			var tDelta:Number = clock.currentTime - _lastFrameTime;
-			var elapsedFrames:Number = Math.floor(tDelta/_mpf);
-			var newFrame:int = _base + (_currentFrame - _base + elapsedFrames)%_length;
-			_actor.cell = newFrame;
+			var elapsedFrames:Number = Math.floor(tDelta / _mpf);
+			if (elapsedFrames > 0)
+			{ 
+				_currentFrame = _base + (((_currentFrame - _base) + elapsedFrames) % _length);
+				_actor.cell = _currentFrame;
+			    _lastFrameTime = _clock.currentTime;
+			} 
 		}
 	}
 }
