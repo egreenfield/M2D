@@ -99,7 +99,7 @@
 			// A few other material elements.
 			texture = world.assetMgr.createAssetFromDisplayObject(new BlueTile());
 			texture.hasAlphaChannel = true;
-			createCube(texture, 9, 13, 3, 3, 3, 4, offsetX, offsetY-11, 2, .5);
+			createCube(texture, 8, 13, 3, 3, 3, 4, offsetX, offsetY-11, 2, .5);
 			createCube(texture, 2, 18, 13, 6, 6, 1, offsetX, offsetY-8, 2, .5);
 		}
 				
