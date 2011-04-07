@@ -50,7 +50,8 @@
 		
 		
 		private static var tmpMatrix:Matrix3D = new Matrix3D();
-		private static var CONSTANTS:Vector.<Number> = Vector.<Number> ( [0,0,0,.5,0,0,1,0] ); 
+		private static var VERTEX_CONSTANTS:Vector.<Number> = Vector.<Number> ( [0,0,0,.5,0,0,1,0] ); 
+		private static var FRAGMENT_CONSTANTS:Vector.<Number> = Vector.<Number> ( [1,0,0,0,0,0,0,0] ); 
 		
 		private var _clock:Clock;
 		
@@ -112,7 +113,7 @@
 			symbol.initForContext();
 			source.initData();
 			source.initBuffers();
-			symbol.texture.prepare();
+			symbol.asset.texture.prepare();
 			
 	
 			ctx.setProgram(symbol.shaderProgram );
@@ -136,34 +137,44 @@
 			
 			ctx.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, 0, tmpMatrix, true );				
 			ctx.setProgramConstantsFromMatrix( Context3DProgramType.VERTEX, 4, world.cameraMatrix, true );				
+
+			var uvWidth:Number = symbol.width/symbol.asset.texture.width;
+			var uvHeight:Number = symbol.height/symbol.asset.texture.height;
 			
-			CONSTANTS[0] = symbol.gravityX/2; //horizontal acceleration
-			CONSTANTS[1] = symbol.gravityY/2; //vertical acceleration;
-			CONSTANTS[2] = delta; //time since start (of buffer, not necessarily emitter start);
-			CONSTANTS[3] = symbol.lifespan; //how long a particle should stay alive;
+			VERTEX_CONSTANTS[0] = symbol.gravityX/2; //horizontal acceleration
+			VERTEX_CONSTANTS[1] = symbol.gravityY/2; //vertical acceleration;
+			VERTEX_CONSTANTS[2] = delta; //time since start (of buffer, not necessarily emitter start);
+			VERTEX_CONSTANTS[3] = symbol.lifespan; //how long a particle should stay alive;
 	
-			
-			
-			
+			FRAGMENT_CONSTANTS[0] = symbol.lifespan; //how long a particle should stay alive;			
+			FRAGMENT_CONSTANTS[1] = uvWidth; // width of a cell			
+			FRAGMENT_CONSTANTS[2] = uvHeight; // height of a cell			
+
+			FRAGMENT_CONSTANTS[4] = symbol.asset.cellColumnCount; // width of the spritesheet			
+			FRAGMENT_CONSTANTS[5] = symbol.firstCellInAnimation;
+			FRAGMENT_CONSTANTS[6] = symbol.numCellsInAnimation;
+			FRAGMENT_CONSTANTS[7] = symbol.milliPerFrameInAnimation;			
+			ctx.setProgramConstantsFromVector( Context3DProgramType.FRAGMENT, 1, FRAGMENT_CONSTANTS);
 			ctx.setProgramConstantsFromVector(Context3DProgramType.FRAGMENT,0,Vector.<Number>([1,-.01,-.01,-.01]));
-			ctx.setTextureAt( 0, symbol.texture.texture);
+			ctx.setTextureAt( 0, symbol.asset.texture.texture);
 	
 			
 			
 			var range:BufferRange = BufferRange.range;
 			var firstIndexOfRequest:Number = firstLivingParticleIndex;
+
+
 			while(numLivingParticles > 0)
 			{				
 				source.getBufferRange(range,firstLivingParticleIndex,firstIndexOfRequest,numLivingParticles);
 				
-				CONSTANTS[2] = delta - range.timeOffsetOfBuffer;
+				VERTEX_CONSTANTS[2] = delta - range.timeOffsetOfBuffer;
+				ctx.setProgramConstantsFromVector( Context3DProgramType.VERTEX, 8, VERTEX_CONSTANTS);
 					
 				ctx.setVertexBufferAt( 2, range.params.paramBuffer, 0, Context3DVertexBufferFormat.FLOAT_1 );			
 				ctx.setVertexBufferAt( 3, range.params.paramBuffer, 3, Context3DVertexBufferFormat.FLOAT_3 );			
 				ctx.setVertexBufferAt( 4, range.params.paramBuffer, 1, Context3DVertexBufferFormat.FLOAT_2 );			
 
-				ctx.setProgramConstantsFromVector( Context3DProgramType.VERTEX, 8, CONSTANTS);
-				ctx.setProgramConstantsFromVector( Context3DProgramType.FRAGMENT, 1, CONSTANTS);
 				
 				ctx.drawTriangles(symbol._indexBuffer,range.firstPosition*NUM_INDICES_PER_PARTICLE,range.length*NUM_TRIANGLES_PER_PARTICLE);
 				firstIndexOfRequest += range.length;
@@ -174,7 +185,7 @@
 		
 		override protected function updateKey():void
 		{
-			task.setKey(RenderTask.OPAQUE | RenderTask.makeRenderCode(symbol.library.renderID) | RenderTask.makeMaterialCode(symbol.texture.textureID),RenderTask.makeDepthCode(depth));
+			task.setKey(RenderTask.OPAQUE | RenderTask.makeRenderCode(symbol.library.renderID) | RenderTask.makeMaterialCode(symbol.asset.texture.textureID),RenderTask.makeDepthCode(depth));
 		}
 		
 	}

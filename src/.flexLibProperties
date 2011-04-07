@@ -8,6 +8,7 @@
     <classEntry path="utils.DebugUtils"/>
     <classEntry path="zones.RectangleZone"/>
     <classEntry path="zones.Zone2D"/>
+    <classEntry path="M2D.particles.ParticleData"/>
   </includeClasses>
   <includeResources/>
   <namespaceManifests/>

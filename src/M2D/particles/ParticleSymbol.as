@@ -28,6 +28,7 @@
 * THE SOFTWARE.
 */package M2D.particles
 {
+	import M2D.sprites.Asset;
 	import M2D.worlds.BatchTexture;
 	
 	import com.adobe.utils.AGALMiniAssembler;
@@ -57,7 +58,7 @@
 		private var staticSource:ParticleSource;
 		public var width:Number;
 		public var height:Number;		
-		public var _texture:BatchTexture;
+		public var _asset:Asset;
 		public var library:ParticleLibrary;
 		
 		public var birthDelay:Number = 100;
@@ -68,6 +69,15 @@
 		public var gravityX:Number = 0;
 		public var gravityY:Number = 3/10000;
 
+		private static var location:Vector3D = new Vector3D();
+		private var particleData:ParticleData = new ParticleData();
+		public var initializeParticleCallback:Function;
+
+		
+		public var firstCellInAnimation:int = 0;
+		public var numCellsInAnimation:int = 1;
+		public var milliPerFrameInAnimation:int = 1000/30;
+		
 		public var generateInWorldSpace:Boolean = true;
 		
 		internal var vertexVector:Vector.<Number>;
@@ -132,26 +142,49 @@
 			"";
 		
 		private static const ALPHA_TEXTURE_SHADER:String =
-			"mov ft0, v0\n" +
+			"mov ft0, v0\n" +		// has the starting uv coords
+									// but now we'll offset for cell animation
+			
+			"mov ft1, fc2\n" +		// first compute the cell index
+			"div ft1.z, v1.x,fc2.w\n" + // divide current time (for this particle) by mill-per-frame to get current frame (with fractions)
+			"frc ft1.y,ft1.z\n" + // compute the fractional part of the frame
+			"sub ft1.x, ft1.z,ft1.y\n" + // subtract fractional portion to get the integer frame index
+			
+										// now adjust for animation base and animation length to get adjusted cell index
+			"div ft3.x, ft1.x, fc2.z\n"+ // divide by the number of cells in the animation
+			"frc ft3.x, ft3.x\n"+	// find the remainder
+			"mul ft3.x, ft3.x, fc2.z\n"+ // and multiple by number of cells in animation...voila, we have mod!
+			"add ft3.x, ft3.x, fc2.y\n"+ // add back in the base of the animation									
+										// now split into row/column idx
+			"div ft3.w, ft3.x,fc2.x\n"+ // divide by number of columns
+			"frc ft3.x, ft3.w\n"+	// get the fractional portion and stick it into x
+			"sub ft3.y, ft3.w,ft3.x\n"+ // get the integer portion, stick it into y as vertical row offset
+			"mul ft3.x, ft3.x, fc2.x\n" +// multiple the fractional portion by column count to get horizontal column offset			
+			"mul ft3.x, ft3.x, fc1.y\n"+ // multiply horizontal cell index by cell width to get uv offset
+			"mul ft3.y, ft3.y, fc1.z\n"+ // multiply vertical row index by row height to get uv offset
+				
+			"add ft0.x, ft0.x, ft3.x\n"+ // now add uvOffset for cell to horizontal uvCoordinate
+			"add ft0.y, ft0.y, ft3.y\n"+ // now add uvOffset for cell to horizontal uvCoordinate
+			
 			"tex ft1, ft0, fs0 <2d,clamp,linear>\n"+ // sample texture 0
-			"add ft2,ft1,fc0\n" +
-			"kil ft2.w\n" +
-			"div ft3.a v1.x fc1.w\n" + 
+			"add ft2,ft1,fc0\n" +					// eliminate fully transparent pixels first subtract an epsilon
+			"kil ft2.w\n" +							// and kill if alpha is below zero
+			"div ft3.a v1.x fc1.x\n" + 
 			"sub ft3.a fc0.x ft3.a\n" +
 			"mul ft1.a ft1.a  ft3.a\n" +
 			"mov oc, ft1\n" +
 			"\n";
 		
-		public function set texture(value:BatchTexture):void
+		public function set asset(value:Asset):void
 		{
-			_texture = value;
-			width = _texture.defaultWidth;
-			height = _texture.defaultHeight;
+			_asset = value;
+			width = _asset.width/_asset.cellColumnCount; 
+			height = _asset.height/_asset.cellRowCount;			
 		}
 		
-		public function get texture():BatchTexture
+		public function get asset():Asset
 		{
-			return _texture;
+			return _asset;
 		}
 		
 		public function createInstance():ParticleInstance
@@ -193,8 +226,8 @@
 			
 			var ctx:Context3D = library.world.context3D;
 			
-			var uvWidth:Number = width/texture.width;
-			var uvHeight:Number = height/texture.height;
+			var uvWidth:Number = width/_asset.texture.width;
+			var uvHeight:Number = height/_asset.texture.height;
 			
 			var left:Number = -width/2;
 			var top:Number = -height/2;
@@ -277,21 +310,23 @@
 		}
 		
 		
-		private static var location:Vector3D = new Vector3D();
-
+		
 		internal function fillBuffer(buffer:ParticleParameterBuffer, firstPosition:Number,firstIndex:Number,length:Number,m:Matrix3D):void
 		{		
 			
-			//configuration
-			location.x = 0;
-			location.y = 0;	
-			var l:Vector3D = location;
+			var data:ParticleData = particleData;
+			var location:Vector3D = data.location;
+			var l:Vector3D  = location;
+			
 			for(var i:Number = 0;i<length;i++) {
 				var particleIdx:Number = firstIndex + i + buffer.firstIndexInParams;
 				var idx:Number = (firstPosition+i)*NUM_PARAM_FLOATS_PER_PARTICLE;
+				
+				initializeParticleCallback(data);
+
 				var r:Number = (Math.random()*.5+.5-.25)*-Math.PI;//(birthTime%1000)/1000*2*Math.PI * (Math.random() * .4 + .8);
-				var v:Number = (Math.random() * 400 + 100)/1000;
-				var rv:Number = (Math.PI*2)  / 1000;
+				var v:Number = (Math.random() * 400 + 100)/1000/2;
+				var rv:Number = 0;//(Math.PI*2)  / 1000;
 				var birthTime:Number = birthDelay * (particleIdx);
 				if(birthZone != null)
 				{
@@ -306,9 +341,9 @@
 					buffer.paramVector[idx++] = birthTime;
 					buffer.paramVector[idx++] = l.x;
 					buffer.paramVector[idx++] = l.y;
-					buffer.paramVector[idx++] = r; 
-					buffer.paramVector[idx++] = v;
-					buffer.paramVector[idx++] = rv;
+					buffer.paramVector[idx++] = data.direction; 
+					buffer.paramVector[idx++] = data.speed;
+					buffer.paramVector[idx++] = data.angularVelocity;
 				}
 			}
 		}
