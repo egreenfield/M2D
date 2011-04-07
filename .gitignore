@@ -8,3 +8,10 @@
 
 /samples/ParticleTest/bin
 /samples/ParticleTest/bin-debug
+
+/samples/AnimatedParticleTest/bin
+/samples/AnimatedParticleTest/bin-debug
+
+/samples/MoveClipTest/bin-debug
+
+bin-debug/

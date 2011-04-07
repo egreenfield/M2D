@@ -58,7 +58,7 @@
 	import zones.Zone2D;
 	
 	[SWF(width="1400", height="1050", frameRate="60", backgroundColor="0x000000")]
-	public class MHPTest extends Sprite implements IClockListener
+	public class AnimatedParticleTest extends Sprite implements IClockListener
 	{
 		public var tf:TextField;
 		public static const smoothWindow:int = 100;
@@ -66,32 +66,14 @@
 		private var world:M2D.worlds.World;
 		private var ps:Array = [];
 		
-		[Embed(source="assets/smiley.png")]
-		public var smiley:Class;
-		
-		[Embed(source="assets/smileyRect.png")]
-		public var smileyRect:Class;
-		
-		[Embed(source="assets/circle.png")]
-		public var flashBubble:Class;
-		
-		[Embed(source="assets/knightRun.png")]
-		public var knight:Class;
-		
-		[Embed(source="assets/glow.png")]
-		public var dot:Class;
-		
-		[Embed(source="assets/air.jpg")]
-		public var air:Class;
-		
-		[Embed(source="assets/sparkle.png")]
-		public var particle:Class;
+		[Embed(source="assets/explosion.png")]
+		public var explosionPng:Class;
 		
 		public var viewWidth:Number;
 		public var viewHeight:Number;
 		
 		public var particleSymbol:ParticleSymbol; 
-		public function MHPTest()
+		public function AnimatedParticleTest()
 		{
 			viewWidth = 1400;
 			viewHeight = 1050;
@@ -107,58 +89,38 @@
 			clock.addListener(world);
 			world.initContext(stage,this,0,new Rectangle(0,0,viewWidth,viewHeight));
 			
-			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new particle());
+			var tex:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new explosionPng());
+			var explosion:Asset = world.library.createAsset(tex);
+			explosion.cellColumnCount = 5;
+			explosion.cellRowCount = 5;
+			
 			particleSymbol = world.particleLibrary.createSymbol();
+			particleSymbol.asset = explosion;
+			particleSymbol.birthDelay = 10;
+			particleSymbol.lifespan = 1840;
 			
+			particleSymbol.firstCellInAnimation = 0;
+			particleSymbol.numCellsInAnimation = 23;
+			particleSymbol.milliPerFrameInAnimation = 80;
 			
-			particleSymbol.asset = world.library.createAsset(kTexture);
-			particleSymbol.birthDelay = 1;
-			particleSymbol.lifespan = 5000;
 			particleSymbol.generateInWorldSpace = true;
-			
-			var f:Bitmap = new flashBubble();
-			
-			var bz:BitmapDataZone = new BitmapDataZone(f.bitmapData,0,0,.5,.5);
-			particleSymbol.birthZone = bz;//new PointZone(new Point(0,0));//bz//RectangleZone(-200,-200,200,200);
-			var flash:BatchTexture = world.assetMgr.createTextureFromDisplayObject(f);
-			
-//			particleSymbol.gravityX = particleSymbol.gravityY;
-			particleSymbol.gravityY *= 2;
-	//		particleSymbol.maxParticles = 1000;
 			particleSymbol.initializeParticleCallback = initParticle;
-				
+//			particleSymbol.gravityY *= .5;
 			
-			var asset:Asset = world.library.createAsset(flash);
 
+			
 			var maxLiving:Number = Math.ceil(particleSymbol.lifespan/particleSymbol.birthDelay);
-			var numGenerators:Number = 1;
 			trace("Max symbols per generator:",maxLiving);
-			trace("total #:",maxLiving*numGenerators);
+			trace("total #:",maxLiving);
 			var particle:ParticleInstance;
-			var ac:Actor;
-			
-			var z:Zone2D = new RectangleZone(-200,-200,200,200);
-			for(var i:int = 0;i<numGenerators;i++) {
-				
+			particle = particleSymbol.createInstance();
+			particle.x = viewWidth/2;
+			particle.y = viewHeight/2;
+			particle.depth = 10 ;
 
-				particle = particleSymbol.createInstance();
-				particle.x = Math.random()*viewWidth/2 + viewWidth/4 - viewWidth/4;
-				particle.y = Math.random() * 400+ 500 - 200;
-				particle.depth = 10 ;
+			particle.clock = _clock;
+			particle.start();
 
-				/*
-				ac = asset.createActor();
-				ac.depth = -20;
-				ac.scaleX = ac.scaleY = .5;
-				ac.regX = ac.regY = 0;
-				ac.x = particle.x;
-				ac.y = particle.y;
-				*/
-				particle.clock = _clock;
-//				particle.rotation = Math.random() * 360 ;
-				particle.start();
-				ps.push({p:particle,ac:ac});
-			}
 			tf = new TextField();
 			//			tf.width = viewWidth;
 			//			tf.height = viewHeight;
@@ -172,6 +134,7 @@
 			tf.addEventListener(MouseEvent.CLICK,clickHandler);
 			
 		}
+		
 		public function initParticle(d:ParticleData):void
 		{
 			d.location.x = Math.random()*300 - 150;
@@ -180,8 +143,6 @@
 			d.speed = (Math.random() * 400 + 100)/1000/2;
 			d.angularVelocity = (Math.random() * Math.PI*2)  / 1000;
 		}
-
-		
 		public function clickHandler(e:MouseEvent):void
 		{
 			if(_clock.paused)
@@ -208,26 +169,10 @@
 			_clock = value;
 		}
 		
-		private var prevX:Number;
-		private var prevY:Number;
 		public function tick():void
 		{
 			report();
 			
-			
-			prevX = mouseX;
-			prevY = mouseY;
-			for each(var p:* in ps)
-			{
-//				p.rotation += .5;//Math.random()*3;
-				//p.x = p.x + (mouseX - p.x)*.1;
-				//p.y = p.y + (mouseY - p.y)*.1;
-				p.p.x = mouseX;
-				p.p.y= mouseY;
-//				p.ac.x = mouseX;
-//				p.ac.y= mouseY;
-			}
-
 		}
 		private function report():void
 		{
@@ -251,7 +196,7 @@
 			else
 				return;
 			tf.text = 
-				"\nnumber of particles (avg): " + (particleSymbol.possibleNumLivingParticles * ps.length) + 
+				"\nnumber of particles (avg): " + (particleSymbol.possibleNumLivingParticles ) + 
 				"\nfps: " + fps.average + 
 				"\nmilli/frame: " + mpf.average + 
 				"\ntotal AS processing: " + asProcessing.average + 
