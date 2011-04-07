@@ -51,6 +51,7 @@
 		public static var cellWidth:Number = 44;
 		public static var cellHeight:Number = 44;
 		public static var layerHeight:Number = 25;
+		public static var worldMax:int = 100;
 		
 		private var instanceCount:Number = 0;
 		private var actors:Vector.<Actor> = new Vector.<Actor>();
@@ -107,7 +108,7 @@
 		{
 			actor.x = (row + col) * (cellWidth / 2) + offsetX;
 			actor.y = (cellLength/4) * (row - col) +  offsetY - ((cellHeight) * layer);
-			actor.depth = (row + 1) + (2048 - (col + 1)) + (layer + 1);
+			actor.depth = ((row + 1) + (worldMax-col) + (layer+1));
 		}
 		
 		
