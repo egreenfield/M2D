@@ -93,14 +93,14 @@
 			createCube(texture, 0, 0, 0, size, size, 3, offsetX, offsetY);
 
 			// Left and Right Stairs
-			createStairs(0, texture, 0, 0, 3, 7, size, 9, offsetX, offsetY);
-			createStairs(1, texture, 0, 17, 3, size, 8, 9, offsetX, offsetY);
+			createStairs(0, texture, 0, 0, 3, 7, size-1, 9, offsetX, offsetY, 1, .7);
+			createStairs(1, texture, 0, 17, 3, size, 7, 9, offsetX, offsetY, 1, .7);
 
 			// A few other material elements.
 			texture = world.assetMgr.createAssetFromDisplayObject(new BlueTile());
 			texture.hasAlphaChannel = true;
-			createCube(texture, 8, 13, 3, 3, 3, 4, offsetX, offsetY-11, 2, .5);
-			createCube(texture, 2, 18, 13, 6, 6, 1, offsetX, offsetY-8, 2, .5);
+			createCube(texture, 8, 13, 3, 3, 3, 4, offsetX, offsetY-11, 2, .8);
+			createCube(texture, 2, 17, 13, 6, 6, 1, offsetX, offsetY-8, 2, .8);
 		}
 				
 		private function placeTile(actor:Actor, row:int, col:int, layer:int, cellWidth:Number, cellLength:Number, cellHeight:Number, offsetX:Number, offsetY:Number):void
