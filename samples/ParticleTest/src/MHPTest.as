@@ -56,7 +56,7 @@
 	import zones.RectangleZone;
 	import zones.Zone2D;
 	
-	[SWF(width="1400", height="1050", frameRate="60", backgroundColor="0xFFFFFF")]
+	[SWF(width="1400", height="1050", frameRate="60", backgroundColor="0x000000")]
 	public class MHPTest extends Sprite implements IClockListener
 	{
 		public var tf:TextField;
@@ -83,6 +83,9 @@
 		[Embed(source="assets/air.jpg")]
 		public var air:Class;
 		
+		[Embed(source="assets/sparkle.png")]
+		public var particle:Class;
+		
 		public var viewWidth:Number;
 		public var viewHeight:Number;
 		
@@ -99,17 +102,17 @@
 			
 			
 			world = new World();
-			world.backgroundColor = 0xeee8aa;
+			world.backgroundColor = 0x000000;
 			clock.addListener(world);
 			world.initContext(stage,this,0,new Rectangle(0,0,viewWidth,viewHeight));
 			
-			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new smiley());
+			var kTexture:BatchTexture = world.assetMgr.createTextureFromDisplayObject(new particle());
 			particleSymbol = world.particleLibrary.createSymbol();
 			
 			
 			particleSymbol.texture = kTexture;
 			particleSymbol.birthDelay = 1;
-			particleSymbol.lifespan = 2000;
+			particleSymbol.lifespan = 5000;
 			particleSymbol.generateInWorldSpace = true;
 			
 			var f:Bitmap = new flashBubble();
