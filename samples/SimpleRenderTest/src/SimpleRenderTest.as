@@ -82,7 +82,7 @@
 				var actor:Actor = texture.createActor();
 				actor.x = Math.random() * viewWidth;
 				actor.y = Math.random() * viewHeight;
-				actor.scaleX = (Math.random() * .40) + .30;
+				actor.scaleX = (Math.random() * .25) + .25;
 				actor.scaleY = actor.scaleX;
 				actor.rotation = (Math.random() * 180) - 180;
 				actor.alpha = (Math.random() * .2) + .80;
