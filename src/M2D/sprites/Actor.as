@@ -197,19 +197,19 @@ package M2D.sprites
 			sourceRCDirty = false;			
 		}
 		
-		
 		public function get2DMatrix():Matrix
 		{
 			var m:Matrix = new Matrix();
-			m.translate((isNaN(regX))?  -width/2:regX,(isNaN(regY))?  -height/2:regY);
-
+			var rx:Number = isNaN(regX) ? width/2 : regX;
+			var ry:Number = isNaN(regY) ? height/2 : regY;
+			m.translate(-rx, -ry);
 			m.scale(scaleX,scaleY);
 			if(rotation != 0)
 				m.rotate(rotation / 180 * Math.PI);
-			m.translate(x,y);
-			return m;			
+			m.translate(x + rx, y + ry);
+			return m;
 		}
-		
+	
 		private var _asset:Asset;
 		public function set asset(v:Asset):void
 		{
