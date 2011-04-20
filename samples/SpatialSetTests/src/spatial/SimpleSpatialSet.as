@@ -34,8 +34,6 @@ package spatial
 	import flash.geom.Rectangle;
 	import flash.utils.Dictionary;
 	
-	import spatial.ISpatialObject;
-	
 	/**
 	 * Very basic spatial object manager that simply keeps
 	 * a list of all managed objects sorted by depth. With the exception

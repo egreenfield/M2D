@@ -2,7 +2,7 @@
 * M2D 
 * .....................
 * 
-* Author: Ely Greenfield
+* Author: Corey Lucier
 * Copyright (c) Adobe Systems 2011
 * https://github.com/egreenfield/M2D
 * 
@@ -36,8 +36,6 @@
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
-	import flash.events.MouseEvent;
-	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
@@ -46,8 +44,12 @@
 	import spatial.HierarchicalGrid;
 	import spatial.ISpatialObject;
 	import spatial.ISpatialSet;
-	import spatial.SimpleSpatialSet;
 	
+	/**
+	 * Simple example exercising the HierarchicalGrid spatial manager's queryCollisions
+	 * method. Swap the HierarchicalGrid with a SimpleSpatialSet to contrast with a brute
+	 * force approach.
+	 */ 
 	[SWF(width="1200", height="1050", frameRate="60", backgroundColor="0x00AA00")]
 	public class CollisionTest extends Sprite implements IClockListener
 	{
@@ -57,6 +59,7 @@
 		public static var viewHeight:Number = 1050;
 		public static var queryTime:Number = 0;
 		private var actors:Vector.<Projectile> = new Vector.<Projectile>();
+		
 		private var spatialManager:ISpatialSet = new HierarchicalGrid(viewWidth, viewHeight);
 		//private var spatialManager:ISpatialSet = new SimpleSpatialSet(viewWidth, viewHeight);
 		

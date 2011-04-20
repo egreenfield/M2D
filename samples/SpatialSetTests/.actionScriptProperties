@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<actionScriptProperties analytics="false" mainApplicationPath="IsometricTest.as" projectUUID="88f91c72-768c-4dd0-9d63-f9695571cf71" version="10">
+<actionScriptProperties analytics="false" mainApplicationPath="PickingTest.as" projectUUID="88f91c72-768c-4dd0-9d63-f9695571cf71" version="10">
   <compiler additionalCompilerArguments="-locale en_US -swf-version=13" autoRSLOrdering="true" copyDependentFiles="false" fteInMXComponents="false" generateAccessible="true" htmlExpressInstall="true" htmlGenerate="false" htmlHistoryManagement="true" htmlPlayerVersionCheck="true" includeNetmonSwc="false" outputFolderPath="bin-debug" removeUnusedRSL="true" sourceFolderPath="src" strict="true" targetPlayerVersion="10.2.0" useApolloConfig="false" useDebugRSLSwfs="true" verifyDigests="true" warn="true">
     <compilerSourcePath/>
     <libraryPath defaultLinkType="0">
@@ -51,7 +51,7 @@
   </compiler>
   <applications>
     <application path="CollisionTest.as"/>
-    <application path="IsometricTest.as"/>
+    <application path="PickingTest.as"/>
   </applications>
   <modules/>
   <buildCSSFiles/>

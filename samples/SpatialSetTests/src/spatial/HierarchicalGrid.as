@@ -31,9 +31,6 @@ package spatial
 {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.utils.Dictionary;
-	
-	import spatial.ISpatialObject;
 	
 	/**
 	 * Basic (reference) hierarchical hash-grid implementation. This approach 
@@ -64,7 +61,9 @@ package spatial
 		private static const LARGE_PRIME_3:int = 0xcb1ab31f;
 			
 		/**
-		 * Constructor
+		 * Constructor.  Depending on your spatial object characteristics, adjusting
+		 * minObjectSize, BOUNDS_TO_CELL_RATIO, and HASH_SIZE may improve performance
+		 * (e.g. reduce the number of tests per grid cell and level).
 		 */	
 		public function HierarchicalGrid(worldWidth:uint, worldHeight:uint, minObjectSize:int=32)
 		{
@@ -159,7 +158,7 @@ package spatial
 		public function queryCollisions(object:ISpatialObject, notification:Function):void
 		{
 			generation++;
-			return collisionTest(object, notification);
+			return collisionTest(object, notification, true);
 		}
 		
 		/**
@@ -172,6 +171,12 @@ package spatial
 		public function queryAllCollisions(notification:Function):void
 		{
 			generation++;
+			
+			// While we could iterate our hash vector in order, we instead
+			// traverse it level by level starting with smallest objects. This
+			// allows us to reduce the total number of tests since we can 
+			// avoid expanding our search bounds with larger objects (since
+			// all pairings with smaller objects will have been completed).
 			for (var l:int = 0 ; l < this.maxLevels; l++)
 			{
 				var size:int = Math.pow(LEVEL_RATIO, l) * minCellSize;
@@ -188,7 +193,7 @@ package spatial
 							var current:ISpatialObject = node.object;
 							if (node.generation != generation)
 							{
-								collisionTest(current, notification);
+								collisionTest(current, notification, false);
 								node.generation = generation;
 							}	
 							node = node.next;
@@ -298,7 +303,7 @@ package spatial
 		 * For a given spatial object, query all surround cells at or near the location of
 		 * the specified object.
 		 */	
-		protected function collisionTest(object:ISpatialObject, notification:Function):void
+		protected function collisionTest(object:ISpatialObject, notification:Function, queryNeighborCells:Boolean):void
 		{
 			var size:Number = minCellSize;
 			var occupiedMask:uint = occupiedLevelsMask;
@@ -316,7 +321,7 @@ package spatial
 				
 				var xCell:int = object.x / size;
 				var yCell:int = object.y / size;
-				var bnd:int = 1;//Math.ceil(object.boundingRadius / size);
+				var bnd:int = queryNeighborCells ? Math.ceil(object.boundingRadius / size) : 1;
 
 				var x1:int = xCell > 0 ? xCell - bnd : 0;
 				var x2:int = xCell + bnd;

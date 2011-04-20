@@ -1,7 +1,36 @@
+/*
+* M2D 
+* .....................
+* 
+* Author: Corey Lucier
+* Copyright (c) Adobe Systems 2011
+* https://github.com/egreenfield/M2D
+* 
+* 
+* Licence Agreement
+* 
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+* 
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+* 
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+*/
+
 package {
 	
 	import M2D.sprites.Actor;
-	import M2D.worlds.BatchTexture;
 	
 	import flash.display.BitmapData;
 	import flash.geom.Matrix;
@@ -10,9 +39,13 @@ package {
 	
 	import spatial.IKineticObject;
 	import spatial.ISpatialListener;
-	import spatial.ISpatialObject;
 	import spatial.ISpatialObjectProxy;
 	
+	/**
+	 * In order for an actor or other M2D primitive to make use of a spatial manager it must implement
+	 * the ISpatialObject and/or IKineticObject interface.  This class is a reference implementation of 
+	 * said interfaces. Leverage as necessary.
+	 */ 
 	public class Clip implements IKineticObject
 	{
 		public var actor:Actor
@@ -173,6 +206,7 @@ package {
 			var bounds:Rectangle = new Rectangle(0, 0, actor.width, actor.height);
 			var result:Boolean = bounds.contains(pt.x + rx, pt.y + ry);
 			
+			// If necessary hit test our texture/cell.
 			if (result && sampleTexture)
 			{
 				var xf:Vector.<Number> = actor.getBlitXForm();

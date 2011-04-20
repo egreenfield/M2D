@@ -32,8 +32,6 @@ package spatial
 {
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
-	import flash.utils.Dictionary;
-	import spatial.ISpatialObject;
 	
 	/**
 	 * Interface utilized by spatial object managers (quad trees,

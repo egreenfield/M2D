@@ -29,12 +29,6 @@
 */
 package spatial 
 {
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	
-	import spatial.ISpatialListener;
-	import spatial.ISpatialObject;
-	
 	/**
 	 * Marker interface used to allow spatial object managers
 	 * to be notified of changes to an objects size, position,

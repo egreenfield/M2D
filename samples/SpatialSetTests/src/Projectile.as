@@ -31,18 +31,8 @@
 package
 {
 	import M2D.animation.CellAnimation;
-	import M2D.sprites.Actor;
 	import M2D.sprites.Asset;
 	import M2D.time.Clock;
-	
-	import flash.display.BitmapData;
-	import flash.geom.Matrix;
-	import flash.geom.Point;
-	import flash.geom.Rectangle;
-	
-	import spatial.IKineticObject;
-	import spatial.ISpatialListener;
-	import spatial.ISpatialObjectProxy;
 	
 	public class Projectile extends Clip 
 	{

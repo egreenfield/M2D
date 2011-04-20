@@ -29,7 +29,6 @@
 */
 package spatial 
 {
-	import spatial.ISpatialObject;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	

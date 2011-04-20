@@ -29,8 +29,6 @@
 */
 package spatial 
 {
-	import spatial.ISpatialObject;
-	
 	/**
 	 * Interface used by spatial object managers to make it easy
 	 * to correlate spatial object instances with data structure

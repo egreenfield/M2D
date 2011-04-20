@@ -2,7 +2,7 @@
 * M2D 
 * .....................
 * 
-* Author: Ely Greenfield
+* Author: Corey Lucier
 * Copyright (c) Adobe Systems 2011
 * https://github.com/egreenfield/M2D
 * 
@@ -26,7 +26,9 @@
 * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
-*/package
+*/
+
+package
 {
 	import M2D.sprites.Actor;
 	import M2D.sprites.Asset;
@@ -43,12 +45,10 @@
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
-	import flash.utils.Dictionary;
 	import flash.utils.getTimer;
 	
 	import spatial.HierarchicalGrid;
 	import spatial.ISpatialSet;
-	import spatial.SimpleSpatialSet;
 	
 	/**
 	 * Simple example exercising the HierarchicalGrid spatial manager's picking methods.
