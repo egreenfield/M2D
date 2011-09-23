@@ -4,6 +4,10 @@
 
 M2D is a 2D sprite library using Molehill, the new GPU hardware accelerated API for flash.  M2D is intended for projects that primarily use bitmaps for rendering, giving up much of the lovely goodness that is the flash display list.
 
+## Current Status
+
+M2D is *not* under current development.  For GPU accelerated 2D support in flash, please consider using the starling framework at http://www.starling-framework.org/
+
 ## Why M2D?
 
 M2D was built (is being built) for a few reasons:
