@@ -192,8 +192,18 @@ package M2D.worlds
 			for (var i:int = 0; i < clip.numChildren; i++)
 			{
 				var child:DisplayObjectContainer = clip.getChildAt(i) as DisplayObjectContainer;
-				if (child)
-					moveAnimationToFrame(child, frame);
+				if (child){
+					if(child is MovieClip)
+					{
+						var childmc:MovieClip = child as MovieClip;
+						if (childmc.totalFrames >= childmc.currentFrame){
+							childmc.nextFrame();
+							moveAnimationToFrame(child, childmc.currentFrame);
+						}
+					}else{
+						moveAnimationToFrame(child, frame);
+					}
+				}
 			}
 		}
 		
